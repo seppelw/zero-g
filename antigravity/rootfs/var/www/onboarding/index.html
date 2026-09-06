@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antigravity - Home Assistant Onboarding</title>
+  <style>
+    :root {
+      --ha-primary: #03a9f4;
+      --ha-accent: #ff9800;
+      --ha-bg: #101216;
+      --ha-card: #1c2028;
+      --ha-card-border: #2c323f;
+      --ha-text: #e1e7ec;
+      --ha-text-muted: #94a3b8;
+      --ha-success: #10b981;
+      --ha-warning: #f59e0b;
+      --ha-error: #ef4444;
+      --ha-code-bg: #0d1117;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --ha-bg: #f8fafc;
+        --ha-card: #ffffff;
+        --ha-card-border: #e2e8f0;
+        --ha-text: #0f172a;
+        --ha-text-muted: #64748b;
+        --ha-code-bg: #f1f5f9;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      background-color: var(--ha-bg);
+      color: var(--ha-text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 840px;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, #0284c7, #6366f1);
+      border-radius: 18px;
+      box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.4);
+      margin-bottom: 16px;
+      font-size: 32px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--ha-text-muted);
+      font-size: 16px;
+    }
+
+    .status-banner {
+      background-color: var(--ha-card);
+      border: 1px solid var(--ha-card-border);
+      border-left: 4px solid var(--ha-primary);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--ha-warning);
+      box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+      }
+    }
+
+    .status-text h4 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .status-text p {
+      font-size: 13px;
+      color: var(--ha-text-muted);
+    }
+
+    .card {
+      background-color: var(--ha-card);
+      border: 1px solid var(--ha-card-border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background-color: var(--ha-primary);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .step-content {
+      padding-left: 36px;
+    }
+
+    .info-box {
+      background-color: var(--ha-code-bg);
+      border: 1px solid var(--ha-card-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      margin: 12px 0;
+      word-break: break-all;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: var(--ha-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--ha-card-border);
+      color: var(--ha-text);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--ha-code-bg);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+      .step-content {
+        padding-left: 0;
+      }
+    }
+
+    .feature-item {
+      background-color: var(--ha-code-bg);
+      border: 1px solid var(--ha-card-border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .feature-item h5 {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--ha-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-item p {
+      font-size: 12px;
+      color: var(--ha-text-muted);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      background-color: rgba(16, 185, 129, 0.15);
+      color: var(--ha-success);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-badge">🤖</div>
+      <h1>Antigravity Assistant</h1>
+      <p class="subtitle">Autonomes KI-Entwicklungssystem & MCP-Integration für Home Assistant</p>
+    </header>
+
+    <div class="status-banner">
+      <div class="status-indicator">
+        <div class="pulse-dot" id="status-dot"></div>
+        <div class="status-text">
+          <h4 id="status-title">Dienst wird initialisiert...</h4>
+          <p id="status-desc">Warte auf Bereitstellung des Webinterfaces oder Erstanmeldung</p>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-secondary" onclick="checkStatus()">Aktualisieren</button>
+      </div>
+    </div>
+
+    <!-- Step 1: Authentication -->
+    <div class="card">
+      <div class="card-title">
+        <span class="step-badge">1</span>
+        <h3>Google Antigravity Authentifizierung</h3>
+      </div>
+      <div class="step-content">
+        <p>Antigravity benötigt eine einmalige Autorisierung mit deinem Google-Konto. Wähle eine der folgenden Optionen:</p>
+
+        <div class="feature-grid">
+          <div class="feature-item">
+            <h5>Option A: Über das Add-on Log</h5>
+            <p>Öffne in Home Assistant den Reiter <strong>Protokoll (Log)</strong> dieses Add-ons. Dort findest du den personalisierten Google-Anmeldelink. Öffne ihn im Browser und bestätige die Berechtigung.</p>
+          </div>
+          <div class="feature-item">
+            <h5>Option B: Token in Add-on Konfiguration</h5>
+            <p>Hinterlege ein bestehendes OAuth-Token direkt in den Add-on Einstellungen unter <code>auth_token</code> und starte das Add-on neu.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Home Assistant MCP Integration -->
+    <div class="card">
+      <div class="card-title">
+        <span class="step-badge">2</span>
+        <h3>Home Assistant MCP Server <span class="tag">Integriert</span></h3>
+      </div>
+      <div class="step-content">
+        <p>Das Add-on konfiguriert den Home Assistant MCP Server automatisch über das interne Supervisor-Netzwerk:</p>
+
+        <div class="info-box">
+          MCP-Endpunkt: <strong>http://supervisor/core/api/mcp</strong><br>
+          Header: <strong>Authorization: Bearer &lt;SUPERVISOR_TOKEN&gt;</strong> (automatisch injiziert)
+        </div>
+
+        <p style="font-size: 13px; color: var(--ha-text-muted);">
+          Dadurch kann Antigravity sofort auf Home Assistant Entitäten zugreifen, Automationen und Skripte generieren sowie Konfigurationen unter <code>/config</code> direkt bearbeiten.
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-item">
+            <h5>⚡ Direkte Steuerung</h5>
+            <p>Lichter, Schalter, Thermostate und Szenen über natürliche Sprache steuern.</p>
+          </div>
+          <div class="feature-item">
+            <h5>📂 Konfigurationszugriff</h5>
+            <p>Lese- und Schreibzugriff auf YAMLs, Blueprints und Lovelace-Dashboards.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Launch -->
+    <div class="card">
+      <div class="card-title">
+        <span class="step-badge">3</span>
+        <h3>Webinterface aufrufen</h3>
+      </div>
+      <div class="step-content">
+        <p>Sobald die Anmeldung abgeschlossen ist, schaltet das Webinterface automatisch um:</p>
+        <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="launchApp()">🚀 Webinterface jetzt öffnen</button>
+          <a class="btn btn-secondary" href="https://github.com/dinkelhause/homeassistant-antigravity" target="_blank">📖 Dokumentation & GitHub</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function checkStatus() {
+      try {
+        const res = await fetch(window.location.pathname + '?probe=' + Date.now(), {
+          headers: { 'Accept': 'text/html' }
+        });
+        const text = await res.text();
+        // If the upstream responded with the real Antigravity interface (which includes window.__APP_CONFIG__)
+        if (text.includes('__APP_CONFIG__') || text.includes('prism_bundle.js') || text.includes('jetbox.css')) {
+          document.getElementById('status-dot').style.backgroundColor = 'var(--ha-success)';
+          document.getElementById('status-title').innerText = 'Antigravity ist bereit!';
+          document.getElementById('status-desc').innerText = 'Lade Webinterface...';
+          setTimeout(() => {
+            window.location.reload();
+          }, 800);
+          return true;
+        }
+      } catch (e) {
+        console.log("Upstream not ready yet:", e);
+      }
+      return false;
+    }
+
+    function launchApp() {
+      window.location.reload();
+    }
+
+    // Auto-poll every 5 seconds
+    setInterval(checkStatus, 5000);
+  </script>
+</body>
+</html>

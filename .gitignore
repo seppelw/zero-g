@@ -1,0 +1,23 @@
+# Home Assistant & OS
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*~
+
+# Staging & Local Test Artifacts
+.cache/
+staging/
+agy
+*.tar.gz
+*.log
+
+# Persistent local volumes for testing
+data/
+/data/
+
+# Python & Node
+__pycache__/
+*.py[cod]
+node_modules/
+.npm/
