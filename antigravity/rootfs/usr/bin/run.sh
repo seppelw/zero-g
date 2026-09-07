@@ -1,31 +1,34 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Home Assistant Antigravity Add-on: Main Entrypoint
+#
+# Lifecycle:
+#   1. Setup persistent directories & symlinks
+#   2. Inject auth token (if configured)
+#   3. Configure HA MCP server
+#   4. Download / update Antigravity binary
+#   5. Start Nginx ingress proxy (background)
+#   6. Start Antigravity remote-control server (foreground via wait)
 # ==============================================================================
-set -e
+set -euo pipefail
 
-# Load Bashio if available
+# Load Bashio — installed in the Dockerfile from the hassio-addons/bashio repo.
+# If somehow absent, fall back to plain logging and jq-based config parsing.
 if [[ -f /usr/lib/bashio/bashio.sh ]]; then
     # shellcheck source=/dev/null
     source /usr/lib/bashio/bashio.sh
-    LOG_INFO() { bashio::log.info "$*"; }
-    LOG_WARN() { bashio::log.warning "$*"; }
-    LOG_ERR() { bashio::log.error "$*"; }
-    GET_CONFIG() { bashio::config "$1"; }
 else
-    LOG_INFO() { echo "[INFO] $*"; }
-    LOG_WARN() { echo "[WARN] $*"; }
-    LOG_ERR() { echo "[ERROR] $*"; }
-    GET_CONFIG() {
+    bashio::log.info()    { echo "[INFO]    $*"; }
+    bashio::log.warning() { echo "[WARNING] $*"; }
+    bashio::log.error()   { echo "[ERROR]   $*"; }
+    bashio::config() {
         if [[ -f /data/options.json ]]; then
             jq -r --arg k "$1" '.[$k] // empty' /data/options.json
-        else
-            echo ""
         fi
     }
 fi
 
-LOG_INFO "Starting Antigravity Home Assistant Add-on..."
+bashio::log.info "Starting Antigravity Home Assistant Add-on..."
 
 # ------------------------------------------------------------------------------
 # 1. Architecture Detection
@@ -33,21 +36,20 @@ LOG_INFO "Starting Antigravity Home Assistant Add-on..."
 ARCH="$(uname -m)"
 PLATFORM=""
 case "$ARCH" in
-    x86_64|amd64)
-        PLATFORM="linux_amd64"
-        ;;
-    aarch64|arm64)
-        PLATFORM="linux_arm64"
-        ;;
+    x86_64|amd64)   PLATFORM="linux_amd64" ;;
+    aarch64|arm64)   PLATFORM="linux_arm64" ;;
     *)
-        LOG_ERR "Unsupported CPU architecture: $ARCH. Antigravity requires amd64 or aarch64."
+        bashio::log.error "Unsupported CPU architecture: ${ARCH}. Requires amd64 or aarch64."
         exit 1
         ;;
 esac
-LOG_INFO "Detected platform: $PLATFORM ($ARCH)"
+bashio::log.info "Detected platform: ${PLATFORM} (${ARCH})"
 
 # ------------------------------------------------------------------------------
 # 2. Setup Persistent Directories & Symlinks
+#
+#   /data is the only volume that survives add-on updates.
+#   We store all mutable state there and symlink from ~root.
 # ------------------------------------------------------------------------------
 DATA_DIR="/data"
 BIN_DIR="${DATA_DIR}/bin"
@@ -56,30 +58,32 @@ WORKSPACE_DIR="${DATA_DIR}/workspace"
 GEMINI_DIR="${DATA_DIR}/.gemini"
 ANTIGRAVITY_DIR="${DATA_DIR}/.antigravity"
 
-mkdir -p "$BIN_DIR" "$WORKSPACE_DIR" "$GEMINI_DIR" "$ANTIGRAVITY_DIR" "/root/.local/bin"
+mkdir -p "$BIN_DIR" "$WORKSPACE_DIR" \
+         "${GEMINI_DIR}/config" "${GEMINI_DIR}/antigravity-cli" \
+         "$ANTIGRAVITY_DIR" \
+         /root/.local/bin
 
-# Symlink persistence to root user home
-mkdir -p /root/.gemini /root/.antigravity
-rm -rf /root/.gemini && ln -s "$GEMINI_DIR" /root/.gemini
-rm -rf /root/.antigravity && ln -s "$ANTIGRAVITY_DIR" /root/.antigravity
-ln -sf "$AGY_BIN" /root/.local/bin/agy
-ln -sf "$AGY_BIN" /usr/local/bin/agy
+# ln -sfn: -n prevents following existing symlink-as-directory, -f overwrites.
+# This avoids the rm -rf race and handles both fresh start and restart cleanly.
+ln -sfn "$GEMINI_DIR"       /root/.gemini
+ln -sfn "$ANTIGRAVITY_DIR"  /root/.antigravity
+ln -sf  "$AGY_BIN"          /root/.local/bin/agy
+ln -sf  "$AGY_BIN"          /usr/local/bin/agy
 
 # ------------------------------------------------------------------------------
 # 3. Authentication Configuration
 # ------------------------------------------------------------------------------
-AUTH_TOKEN="$(GET_CONFIG 'auth_token')"
+AUTH_TOKEN="$(bashio::config 'auth_token' || true)"
 TOKEN_FILE="${GEMINI_DIR}/jetski-standalone-oauth-token"
 
-if [[ -n "$AUTH_TOKEN" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
-    LOG_INFO "Injecting OAuth authentication token from Add-on options..."
-    # If the user supplied raw JSON token or token string
-    if [[ "$AUTH_TOKEN" =~ ^\{.*\}$ ]]; then
-        echo "$AUTH_TOKEN" > "$TOKEN_FILE"
+if [[ -n "${AUTH_TOKEN:-}" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
+    bashio::log.info "Injecting OAuth token from Add-on options..."
+    if [[ "$AUTH_TOKEN" == "{"* ]]; then
+        # User supplied raw JSON token object
+        printf '%s\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
     else
-        cat <<EOF > "$TOKEN_FILE"
-{"token":{"access_token":"${AUTH_TOKEN}","token_type":"Bearer"}}
-EOF
+        # User supplied a bare access-token string
+        printf '{"token":{"access_token":"%s","token_type":"Bearer"}}\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
     fi
     chmod 600 "$TOKEN_FILE"
 fi
@@ -87,153 +91,186 @@ fi
 # ------------------------------------------------------------------------------
 # 4. Home Assistant MCP Server Setup
 # ------------------------------------------------------------------------------
-LOG_INFO "Executing Home Assistant MCP Server configuration..."
+bashio::log.info "Configuring Home Assistant MCP Server..."
 if [[ -x /usr/bin/ha-mcp-setup.sh ]]; then
-    /usr/bin/ha-mcp-setup.sh || LOG_WARN "MCP Setup finished with non-zero status. Continuing."
+    /usr/bin/ha-mcp-setup.sh || bashio::log.warning "MCP setup returned non-zero. Continuing."
 fi
 
 # ------------------------------------------------------------------------------
-# 5. Check, Download & Auto-Update Antigravity Binary
+# 5. Download / Auto-Update Antigravity Binary
 # ------------------------------------------------------------------------------
-AUTO_UPDATE="$(GET_CONFIG 'auto_update')"
-[[ -z "$AUTO_UPDATE" ]] && AUTO_UPDATE="true"
+AUTO_UPDATE="$(bashio::config 'auto_update' || true)"
+: "${AUTO_UPDATE:=true}"
 
 DOWNLOAD_BASE_URL="https://antigravity-cli-auto-updater-974169037036.us-central1.run.app"
 MANIFEST_URL="${DOWNLOAD_BASE_URL}/manifests/${PLATFORM}.json"
 
+# Fetch the current version from the installed binary, if any.
+current_installed_version() {
+    if [[ -x "$AGY_BIN" ]]; then
+        "$AGY_BIN" --version 2>/dev/null || echo "unknown"
+    else
+        echo "none"
+    fi
+}
+
 download_latest_agy() {
-    LOG_INFO "Querying official release manifest: $MANIFEST_URL"
+    bashio::log.info "Querying release manifest: ${MANIFEST_URL}"
+
     local manifest_json
-    manifest_json="$(curl -fsSL "$MANIFEST_URL" 2>/dev/null || true)"
+    manifest_json="$(curl -fsSL --connect-timeout 15 "$MANIFEST_URL" 2>/dev/null)" || {
+        bashio::log.warning "Failed to fetch release manifest."
+        return 1
+    }
 
     if [[ -z "$manifest_json" ]]; then
-        LOG_WARN "Failed to fetch release manifest. Internet connection or firewall might be restricted."
+        bashio::log.warning "Empty manifest received."
         return 1
     fi
 
     local version download_url sha512
-    version="$(echo "$manifest_json" | jq -r '.version // empty')"
-    download_url="$(echo "$manifest_json" | jq -r '.url // empty')"
-    sha512="$(echo "$manifest_json" | jq -r '.sha512 // empty')"
+    version="$(printf '%s' "$manifest_json"   | jq -r '.version // empty')"
+    download_url="$(printf '%s' "$manifest_json" | jq -r '.url // empty')"
+    sha512="$(printf '%s' "$manifest_json"    | jq -r '.sha512 // empty')"
 
     if [[ -z "$download_url" ]] || [[ -z "$sha512" ]]; then
-        LOG_WARN "Corrupted or incomplete manifest received."
+        bashio::log.warning "Incomplete manifest — missing url or sha512."
         return 1
     fi
 
-    LOG_INFO "Target version: $version"
+    # Skip download if already on the target version
+    local current_ver
+    current_ver="$(current_installed_version)"
+    if [[ "$current_ver" == "$version" ]]; then
+        bashio::log.info "Already on latest version (${version}). Skipping download."
+        return 0
+    fi
+
+    bashio::log.info "Updating: ${current_ver} → ${version}"
 
     local staging_dir="/tmp/antigravity_staging"
-    rm -rf "$staging_dir" && mkdir -p "$staging_dir"
+    rm -rf "$staging_dir"
+    mkdir -p "$staging_dir" || { bashio::log.error "Cannot create staging dir"; return 1; }
     local archive_path="${staging_dir}/agy_package.tar.gz"
 
-    LOG_INFO "Downloading Antigravity package from: $download_url"
-    if ! curl -fsSL -o "$archive_path" "$download_url"; then
-        LOG_ERR "Download failed!"
+    bashio::log.info "Downloading from: ${download_url}"
+    curl -fsSL --connect-timeout 30 -o "$archive_path" "$download_url" || {
+        bashio::log.error "Download failed."
         rm -rf "$staging_dir"
         return 1
-    fi
+    }
 
-    LOG_INFO "Verifying SHA512 checksum..."
+    bashio::log.info "Verifying SHA-512 checksum..."
     local actual_sha512
     actual_sha512="$(sha512sum "$archive_path" | awk '{print $1}')"
-
     if [[ "$actual_sha512" != "$sha512" ]]; then
-        LOG_ERR "Security Verification Failed! Checksum mismatch."
-        LOG_ERR "Expected: $sha512"
-        LOG_ERR "Got:      $actual_sha512"
+        bashio::log.error "Checksum mismatch! Expected: ${sha512}  Got: ${actual_sha512}"
         rm -rf "$staging_dir"
         return 1
     fi
-    LOG_INFO "Checksum verified successfully."
+    bashio::log.info "Checksum verified."
 
-    LOG_INFO "Extracting binary..."
-    if ! tar -xzf "$archive_path" -C "$staging_dir"; then
-        LOG_ERR "Failed to unpack tar archive."
+    bashio::log.info "Extracting binary..."
+    tar -xzf "$archive_path" -C "$staging_dir" || {
+        bashio::log.error "tar extraction failed."
         rm -rf "$staging_dir"
         return 1
-    fi
+    }
 
+    # The archive contains the binary as 'antigravity' or 'agy'.
     local extracted_bin=""
-    if [[ -f "${staging_dir}/antigravity" ]]; then
-        extracted_bin="${staging_dir}/antigravity"
-    elif [[ -f "${staging_dir}/agy" ]]; then
-        extracted_bin="${staging_dir}/agy"
+    if   [[ -f "${staging_dir}/antigravity" ]]; then extracted_bin="${staging_dir}/antigravity"
+    elif [[ -f "${staging_dir}/agy" ]];         then extracted_bin="${staging_dir}/agy"
     else
-        # Find any executable in staging
-        extracted_bin="$(find "$staging_dir" -type f -executable | head -n 1)"
+        # Fallback: find any executable (POSIX-safe flag instead of GNU -executable)
+        extracted_bin="$(find "$staging_dir" -type f -perm -0111 2>/dev/null | head -n 1)"
     fi
 
-    if [[ -n "$extracted_bin" ]] && [[ -f "$extracted_bin" ]]; then
-        cp -f "$extracted_bin" "$AGY_BIN"
-        chmod +x "$AGY_BIN"
-        LOG_INFO "Antigravity binary successfully installed at: $AGY_BIN"
-        rm -rf "$staging_dir"
-        return 0
-    else
-        LOG_ERR "Could not find extracted binary in payload!"
+    if [[ -z "$extracted_bin" ]] || [[ ! -f "$extracted_bin" ]]; then
+        bashio::log.error "No executable found in archive!"
         rm -rf "$staging_dir"
         return 1
     fi
+
+    cp -f "$extracted_bin" "$AGY_BIN" || {
+        bashio::log.error "Failed to copy binary to ${AGY_BIN}."
+        rm -rf "$staging_dir"
+        return 1
+    }
+    chmod +x "$AGY_BIN"
+    rm -rf "$staging_dir"
+    bashio::log.info "Antigravity ${version} installed at ${AGY_BIN}."
+    return 0
 }
 
-NEEDS_DOWNLOAD=false
+# Decide whether to download
 if [[ ! -x "$AGY_BIN" ]]; then
-    LOG_INFO "No Antigravity executable found. Performing initial installation..."
-    NEEDS_DOWNLOAD=true
-elif [[ "$AUTO_UPDATE" == "true" ]]; then
-    CURRENT_VER="$("$AGY_BIN" --version 2>/dev/null || echo "none")"
-    LOG_INFO "Current Antigravity version: $CURRENT_VER. Checking for updates..."
-    NEEDS_DOWNLOAD=true
-fi
-
-if [[ "$NEEDS_DOWNLOAD" == "true" ]]; then
+    bashio::log.info "No existing binary — performing initial download..."
     if ! download_latest_agy; then
-        if [[ -x "$AGY_BIN" ]]; then
-            LOG_WARN "Update failed; falling back to existing binary."
-        else
-            LOG_ERR "Fatal: No executable binary available."
-            exit 1
-        fi
+        bashio::log.error "Fatal: initial download failed and no fallback binary exists."
+        exit 1
     fi
+elif [[ "$AUTO_UPDATE" == "true" ]]; then
+    bashio::log.info "Auto-update enabled — checking for newer version..."
+    download_latest_agy || bashio::log.warning "Update check failed; using existing binary."
 fi
 
-INSTALLED_VER="$("$AGY_BIN" --version 2>/dev/null || echo "unknown")"
-LOG_INFO "Antigravity CLI Version: $INSTALLED_VER"
+INSTALLED_VER="$(current_installed_version)"
+bashio::log.info "Antigravity CLI version: ${INSTALLED_VER}"
 
 # ------------------------------------------------------------------------------
-# 6. Start Ingress Reverse Proxy (Nginx)
+# 6. Start Nginx Ingress Reverse Proxy  (background)
+#
+#    nginx.conf already contains 'daemon off;' so `nginx` runs in the foreground.
+#    We background it and track the PID for clean shutdown.
 # ------------------------------------------------------------------------------
-LOG_INFO "Starting Nginx Ingress reverse proxy on port 8099..."
+bashio::log.info "Starting Nginx Ingress proxy (port 8099)..."
 mkdir -p /run /var/log/nginx
-nginx -t || { LOG_ERR "Nginx configuration test failed"; exit 1; }
+nginx -t 2>&1 || { bashio::log.error "Nginx config test failed."; exit 1; }
 nginx &
 NGINX_PID=$!
 
-# Trap signals for clean shutdown
+# ------------------------------------------------------------------------------
+# 7. Signal Handling & Clean Shutdown
+#
+#    Bash only processes traps between foreground commands.  By running agy in
+#    the background and using `wait`, SIGTERM is handled promptly instead of
+#    being blocked by the foreground process.
+# ------------------------------------------------------------------------------
+AGY_PID=""
 cleanup() {
-    LOG_INFO "Shutting down services..."
-    kill -TERM "$NGINX_PID" 2>/dev/null || true
-    pkill -f "agy.*--remote-control" 2>/dev/null || true
+    bashio::log.info "Shutting down..."
+    [[ -n "${AGY_PID:-}" ]]   && kill -TERM "$AGY_PID"   2>/dev/null || true
+    [[ -n "${NGINX_PID:-}" ]] && kill -TERM "$NGINX_PID" 2>/dev/null || true
+    wait 2>/dev/null || true
     exit 0
 }
-trap cleanup SIGTERM SIGINT
+trap cleanup SIGTERM SIGINT SIGHUP
 
 # ------------------------------------------------------------------------------
-# 7. Start Antigravity Remote Control Server
+# 8. Start Antigravity Remote-Control Server  (foreground loop)
 # ------------------------------------------------------------------------------
-RC_NAME="$(GET_CONFIG 'remote_control_name')"
-[[ -z "$RC_NAME" ]] && RC_NAME="homeassistant-antigravity"
+RC_NAME="$(bashio::config 'remote_control_name' || true)"
+: "${RC_NAME:=homeassistant-antigravity}"
 HUB_PORT=4400
 
-LOG_INFO "Starting Antigravity Remote Control Server on port ${HUB_PORT} (Instance: ${RC_NAME})..."
+bashio::log.info "Launching Antigravity (port ${HUB_PORT}, name '${RC_NAME}')..."
 cd "$WORKSPACE_DIR"
 
 while true; do
     "$AGY_BIN" --remote-control \
                --hub-port "$HUB_PORT" \
-               --remote-control-name "$RC_NAME" || true
+               --remote-control-name "$RC_NAME" &
+    AGY_PID=$!
 
-    LOG_WARN "Antigravity server exited. Restarting in 5 seconds..."
-    sleep 5
+    # `wait` returns immediately when a trapped signal arrives, letting
+    # the cleanup handler fire without waiting for agy to exit on its own.
+    wait "$AGY_PID" || true
+    AGY_PID=""
+
+    # If we reach here, agy exited (crash or normal).  Restart after a delay
+    # unless we were killed by a signal (cleanup already called exit).
+    bashio::log.warning "Antigravity exited. Restarting in 5 s..."
+    sleep 5 &
+    wait $! || true   # interruptible sleep
 done

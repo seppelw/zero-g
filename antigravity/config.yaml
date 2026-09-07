@@ -14,6 +14,7 @@ ingress_port: 8099
 panel_icon: "mdi:robot-excited"
 panel_title: "Antigravity"
 homeassistant_api: true
+hassio_role: "default"
 map:
   - config:rw
   - share:rw
@@ -24,10 +25,10 @@ options:
   remote_control_name: "homeassistant-antigravity"
   ha_mcp_enabled: true
   ha_mcp_mode: "auto"
-  ha_mcp_url: "auto"
+  ha_mcp_url: ""
   ha_mcp_token: ""
   ha_mcp_history_enabled: false
-  ha_mcp_history_url: "auto"
+  ha_mcp_history_url: ""
   auth_token: ""
   log_level: "info"
 schema:
@@ -35,9 +36,10 @@ schema:
   remote_control_name: "str"
   ha_mcp_enabled: "bool"
   ha_mcp_mode: "list(auto|manual)"
-  ha_mcp_url: "str"
+  ha_mcp_url: "url?"
   ha_mcp_token: "password?"
   ha_mcp_history_enabled: "bool"
-  ha_mcp_history_url: "str?"
+  ha_mcp_history_url: "url?"
   auth_token: "password?"
   log_level: "list(trace|debug|info|notice|warning|error|fatal)"
+

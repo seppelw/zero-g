@@ -355,32 +355,37 @@
   <script>
     async function checkStatus() {
       try {
-        const res = await fetch(window.location.pathname + '?probe=' + Date.now(), {
-          headers: { 'Accept': 'text/html' }
-        });
-        const text = await res.text();
-        // If the upstream responded with the real Antigravity interface (which includes window.__APP_CONFIG__)
-        if (text.includes('__APP_CONFIG__') || text.includes('prism_bundle.js') || text.includes('jetbox.css')) {
+        // Use a dedicated health-check endpoint that bypasses the onboarding
+        // fallback.  Nginx proxies /_health to the upstream daemon; if agy is
+        // up it returns 200, otherwise nginx returns 502.
+        const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
+        const res = await fetch(base + '/_health?t=' + Date.now());
+        if (res.ok) {
           document.getElementById('status-dot').style.backgroundColor = 'var(--ha-success)';
+          document.getElementById('status-dot').style.animation = 'none';
           document.getElementById('status-title').innerText = 'Antigravity ist bereit!';
           document.getElementById('status-desc').innerText = 'Lade Webinterface...';
           setTimeout(() => {
-            window.location.reload();
+            // Navigate to the Ingress root to load the real UI
+            window.location.href = base + '/';
           }, 800);
           return true;
         }
       } catch (e) {
-        console.log("Upstream not ready yet:", e);
+        // Network error or CORS — upstream not ready
       }
       return false;
     }
 
     function launchApp() {
-      window.location.reload();
+      const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
+      window.location.href = base + '/';
     }
 
-    // Auto-poll every 5 seconds
+    // Poll every 5 seconds
     setInterval(checkStatus, 5000);
+    // Also check immediately on page load
+    checkStatus();
   </script>
 </body>
 </html>
