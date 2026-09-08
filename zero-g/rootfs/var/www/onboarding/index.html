@@ -363,30 +363,59 @@
     <!-- Step 2: Home Assistant MCP Integration -->
     <div class="card">
       <div class="card-title">
-        <span class="step-badge">2</span>
-        <h3>Home Assistant MCP Server <span class="tag">Integriert</span></h3>
+        <span class="step-badge" id="mcp-step-badge">2</span>
+        <h3>Home Assistant MCP Server <span class="tag" id="mcp-header-tag">Prüfe Status...</span></h3>
       </div>
       <div class="step-content">
-        <p>Das Add-on konfiguriert den Home Assistant MCP Server automatisch über das interne Supervisor-Netzwerk:</p>
-
-        <div class="info-box">
-          MCP-Endpunkt: <strong>http://supervisor/core/api/mcp</strong><br>
-          Header: <strong>Authorization: Bearer &lt;SUPERVISOR_TOKEN&gt;</strong> (automatisch injiziert)
-        </div>
-
-        <p style="font-size: 13px; color: var(--ha-text-muted);">
-          Dadurch kann Antigravity sofort auf Home Assistant Entitäten zugreifen, Automationen und Skripte generieren sowie Konfigurationen unter <code>/config</code> direkt bearbeiten.
+        <p style="margin-bottom: 16px;">
+          Zero-G verbindet sich über das <strong>Model Context Protocol (MCP)</strong> mit Home Assistant, um Smart Home Geräte zu steuern und Konfigurationen zu bearbeiten. Folgende Integrationen werden unterstützt:
         </p>
 
         <div class="feature-grid">
-          <div class="feature-item">
-            <h5>⚡ Direkte Steuerung</h5>
-            <p>Lichter, Schalter, Thermostate und Szenen über natürliche Sprache steuern.</p>
+          <!-- Card 1: Core MCP -->
+          <div class="feature-item" id="card-mcp-core">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+              <h5 style="margin: 0;">⚡ 1. Core MCP Server</h5>
+              <span class="tag" id="tag-mcp-core">Prüfe...</span>
+            </div>
+            <p style="margin-bottom: 12px;">
+              Offizielle Home Assistant Core-Integration für direkte Gerätesteuerung &amp; Assist-Intents (Lampen, Thermostate, Schalter, Skripte).
+            </p>
+            <div style="font-size: 11px; color: var(--ha-text-muted); margin-bottom: 12px; font-family: monospace;">
+              Endpunkt: <code>/api/mcp</code>
+            </div>
+            <div id="action-mcp-core">
+              <a class="btn btn-primary" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=mcp_server" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
+                🔗 In Home Assistant einrichten
+              </a>
+            </div>
           </div>
-          <div class="feature-item">
-            <h5>📂 Konfigurationszugriff</h5>
-            <p>Lese- und Schreibzugriff auf YAMLs, Blueprints und Lovelace-Dashboards.</p>
+
+          <!-- Card 2: Community MCP -->
+          <div class="feature-item" id="card-mcp-comm">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+              <h5 style="margin: 0;">🛠️ 2. Community MCP</h5>
+              <span class="tag" id="tag-mcp-comm">Prüfe...</span>
+            </div>
+            <p style="margin-bottom: 12px;">
+              Erweiterte Entwicklertools von <code>czechbol/hass-mcp</code> für YAML-Dateien, Lovelace-Dashboards, Backups und HACS.
+            </p>
+            <div style="font-size: 11px; color: var(--ha-text-muted); margin-bottom: 12px; font-family: monospace;">
+              Endpunkt: <code>/api/hass_mcp</code>
+            </div>
+            <div id="action-mcp-comm" style="display: flex; flex-direction: column; gap: 8px;">
+              <a class="btn btn-primary" href="https://my.home-assistant.io/redirect/hacs_repository/?owner=czechbol&repository=hass-mcp&category=integration" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
+                📦 1. In HACS öffnen
+              </a>
+              <a class="btn btn-secondary" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=hass_mcp" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
+                🔗 2. Integration hinzufügen
+              </a>
+            </div>
           </div>
+        </div>
+
+        <div style="margin-top: 16px; font-size: 12px; color: var(--ha-text-muted);">
+          💡 <strong>Tipp:</strong> Wenn beide Integrationen aktiv sind, stehen Antigravity sowohl die offizielle Sprachsteuerung als auch alle System- und Dashboard-Werkzeuge parallel zur Verfügung.
         </div>
       </div>
     </div>
@@ -434,10 +463,21 @@
           }
         }
       } catch (e) {
+        // Continue to MCP check
+      }
+
+      // 2. Fetch MCP integration status
+      try {
+        const mcpRes = await fetch(base + '/mcp_info.json?t=' + Date.now());
+        if (mcpRes.ok) {
+          const mcpData = await mcpRes.json();
+          updateMCPUI(mcpData);
+        }
+      } catch (e) {
         // Continue to health check
       }
 
-      // 2. Fetch /_health to check if Antigravity daemon is live
+      // 3. Fetch /_health to check if Antigravity daemon is live
       try {
         const res = await fetch(base + '/_health?t=' + Date.now());
         if (res.ok) {
@@ -480,6 +520,102 @@
           badge.innerText = '1';
           badge.style.backgroundColor = 'var(--ha-primary)';
         }
+      }
+    }
+
+    function updateMCPUI(data) {
+      if (!data) return;
+      const coreTag = document.getElementById('tag-mcp-core');
+      const coreAction = document.getElementById('action-mcp-core');
+      const commTag = document.getElementById('tag-mcp-comm');
+      const commAction = document.getElementById('action-mcp-comm');
+      const headerTag = document.getElementById('mcp-header-tag');
+      const badge = document.getElementById('mcp-step-badge');
+
+      let hasActive = false;
+
+      // 1. Core MCP
+      if (data.core_status === 'active') {
+        hasActive = true;
+        if (coreTag) {
+          coreTag.innerText = '✓ Verbunden';
+          coreTag.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+          coreTag.style.color = 'var(--ha-success)';
+        }
+        if (coreAction) {
+          coreAction.innerHTML = '<div style="color: var(--ha-success); font-weight: 600; font-size: 13px; padding: 6px 0;">✓ Aktiv und einsatzbereit</div>';
+        }
+      } else if (data.core_status === 'missing') {
+        if (coreTag) {
+          coreTag.innerText = 'Nicht eingerichtet';
+          coreTag.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+          coreTag.style.color = 'var(--ha-warning)';
+        }
+      } else if (data.core_status === 'disabled') {
+        if (coreTag) {
+          coreTag.innerText = 'Deaktiviert';
+          coreTag.style.backgroundColor = 'rgba(148, 163, 184, 0.2)';
+          coreTag.style.color = 'var(--ha-text-muted)';
+        }
+      } else {
+        if (coreTag) {
+          coreTag.innerText = 'Auto-Modus';
+          coreTag.style.backgroundColor = 'rgba(3, 169, 244, 0.2)';
+          coreTag.style.color = 'var(--ha-primary)';
+        }
+      }
+
+      // 2. Community MCP
+      if (data.community_status === 'active') {
+        hasActive = true;
+        if (commTag) {
+          commTag.innerText = '✓ Verbunden';
+          commTag.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+          commTag.style.color = 'var(--ha-success)';
+        }
+        if (commAction) {
+          commAction.innerHTML = '<div style="color: var(--ha-success); font-weight: 600; font-size: 13px; padding: 6px 0;">✓ Aktiv und einsatzbereit</div>';
+        }
+      } else if (data.community_status === 'missing') {
+        if (commTag) {
+          commTag.innerText = 'Nicht eingerichtet';
+          commTag.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+          commTag.style.color = 'var(--ha-warning)';
+        }
+      } else if (data.community_status === 'disabled') {
+        if (commTag) {
+          commTag.innerText = 'Deaktiviert';
+          commTag.style.backgroundColor = 'rgba(148, 163, 184, 0.2)';
+          commTag.style.color = 'var(--ha-text-muted)';
+        }
+      } else {
+        if (commTag) {
+          commTag.innerText = 'Optional';
+          commTag.style.backgroundColor = 'rgba(148, 163, 184, 0.2)';
+          commTag.style.color = 'var(--ha-text-muted)';
+        }
+      }
+
+      // Header Tag & Step Badge
+      if (headerTag) {
+        if (data.core_status === 'active' && data.community_status === 'active') {
+          headerTag.innerText = 'Beide aktiv';
+          headerTag.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+          headerTag.style.color = 'var(--ha-success)';
+        } else if (hasActive) {
+          headerTag.innerText = 'Verbunden';
+          headerTag.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+          headerTag.style.color = 'var(--ha-success)';
+        } else if (data.core_status === 'missing' || data.community_status === 'missing') {
+          headerTag.innerText = 'Einrichtung empfohlen';
+          headerTag.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+          headerTag.style.color = 'var(--ha-warning)';
+        }
+      }
+
+      if (badge && hasActive) {
+        badge.innerText = '✓';
+        badge.style.backgroundColor = 'var(--ha-success)';
       }
     }
 

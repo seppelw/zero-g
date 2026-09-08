@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.5
+
+- ✨ **Neu (Automatischer MCP-Installations- & Onboarding-Workflow)**:
+  - **Live-Erkennung von MCP-Servern**: Zero-G prüft beim Start automatisch die Verfügbarkeit des offiziellen Home Assistant Core MCP Servers (`mcp_server`, `/api/mcp`) sowie der erweiterten Community-Integration (`czechbol/hass-mcp`, `/api/hass_mcp`).
+  - **My Home Assistant Benachrichtigungen**: Fehlt eine oder beide Integrationen, benachrichtigt Zero-G den Nutzer automatisch per Home Assistant Benachrichtigung (`persistent_notification`) inklusive 1-Klick **My Home Assistant** Buttons zur direkten Einrichtung bzw. zum HACS-Download.
+  - **Interaktive Statuskarten im Dashboard**: Das Ingress-Statusfenster (Schritt 2) zeigt nun Live-Ampelkarten für beide Server an, inklusive Direktlinks zu `my.home-assistant.io` (`config_flow_start` und `hacs_repository`).
+  - **Automatisches Dual-Mounting**: Ist die Community-Integration aktiv, wird sie ohne manuelle Konfiguration automatisch als zweiter MCP-Server in Antigravity eingehängt.
+
 ## 1.1.4
 
 - ✨ **Neu (Ease of Use)**: Komfortablerer Google-Authentifizierungs-Workflow ohne Umweg über das Add-on-Protokoll:

@@ -23,6 +23,7 @@ class TestHAMCPSetup(unittest.TestCase):
         self.config_dir.mkdir(parents=True, exist_ok=True)
         self.config_file = self.config_dir / "mcp_config.json"
         self.options_file = self.data_dir / "options.json"
+        self.status_file = self.data_dir / "mcp_info.json"
 
     def tearDown(self):
         self.test_dir.cleanup()
@@ -46,6 +47,7 @@ class TestHAMCPSetup(unittest.TestCase):
         env["CONFIG_DIR"] = str(self.config_dir)
         env["CONFIG_FILE"] = str(self.config_file)
         env["OPTIONS_FILE"] = str(self.options_file)
+        env["MCP_STATUS_FILE"] = str(self.status_file)
 
         res = subprocess.run(
             ["bash", str(SETUP_SCRIPT)],
@@ -158,6 +160,21 @@ class TestHAMCPSetup(unittest.TestCase):
         self.assertIn("proxmox", config["mcpServers"])
         self.assertEqual(config["mcpServers"]["proxmox"]["command"], "npx")
         self.assertIn("homeassistant", config["mcpServers"])
+
+    def test_mcp_status_file_generated(self):
+        """Verify mcp_info.json is generated with core and community probe status."""
+        options = {
+            "ha_mcp_enabled": True,
+            "ha_mcp_mode": "auto",
+        }
+        res = self.run_setup(options=options, supervisor_token="test_token")
+        self.assertEqual(res.returncode, 0, f"Script failed: {res.stderr}")
+
+        self.assertTrue(self.status_file.exists(), "mcp_info.json was not created")
+        with open(self.status_file, "r") as f:
+            status = json.load(f)
+        self.assertIn("core_status", status)
+        self.assertIn("community_status", status)
 
 
 if __name__ == "__main__":

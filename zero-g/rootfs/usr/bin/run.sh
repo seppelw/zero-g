@@ -226,6 +226,75 @@ if [[ -x /usr/bin/ha-mcp-setup.sh ]]; then
     /usr/bin/ha-mcp-setup.sh || bashio::log.warning "MCP setup returned non-zero. Continuing."
 fi
 
+MCP_INFO_FILE="/var/www/onboarding/mcp_info.json"
+
+notify_ha_mcp_missing() {
+    local core_stat="$1"
+    local comm_stat="$2"
+    if [[ -z "${SUPERVISOR_TOKEN:-}" ]]; then
+        return
+    fi
+
+    local msg="Damit Zero-G dein Smart Home steuern und Konfigurationen bearbeiten kann, werden die entsprechenden MCP-Server in Home Assistant benötigt:\n\n"
+
+    if [[ "$core_stat" == "missing" ]]; then
+        msg+="- **1. Model Context Protocol Server (Core-Integration)**:\n"
+        msg+="Empfohlen für direkte Gerätesteuerung & Assist-Intents (Lampen, Thermostate, Schalter, Skripte).\n"
+        msg+="[<img src=\"https://my.home-assistant.io/badges/config_flow_start.svg\" alt=\"Integration hinzufügen\">](https://my.home-assistant.io/redirect/config_flow_start/?domain=mcp_server)\n\n"
+    fi
+
+    if [[ "$comm_stat" == "missing" ]]; then
+        msg+="- **2. Native MCP for Home Assistant (Community-Integration via HACS)**:\n"
+        msg+="Empfohlen für erweiterte Verwaltungs- und Entwicklertools (Lovelace Dashboards, YAML-Dateien, HACS, Backups).\n"
+        msg+="*Schritt 1: In HACS öffnen & herunterladen:*\n"
+        msg+="[<img src=\"https://my.home-assistant.io/badges/hacs_repository.svg\" alt=\"In HACS öffnen\">](https://my.home-assistant.io/redirect/hacs_repository/?owner=czechbol&repository=hass-mcp&category=integration)\n\n"
+        msg+="*Schritt 2: Nach dem HA-Neustart hinzufügen:*\n"
+        msg+="[<img src=\"https://my.home-assistant.io/badges/config_flow_start.svg\" alt=\"Integration hinzufügen\">](https://my.home-assistant.io/redirect/config_flow_start/?domain=hass_mcp)\n\n"
+    fi
+
+    local payload
+    payload=$(jq -n \
+        --arg msg "$msg" \
+        '{
+            notification_id: "zero_g_mcp",
+            title: "🔌 Zero-G: Home Assistant MCP einrichten",
+            message: $msg
+        }')
+
+    curl -s -m 5 -X POST \
+        -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "$payload" \
+        http://supervisor/core/api/services/persistent_notification/create >/dev/null 2>&1 || true
+}
+
+dismiss_ha_mcp_notification() {
+    if [[ -n "${SUPERVISOR_TOKEN:-}" ]]; then
+        curl -s -m 5 -X POST \
+            -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"notification_id": "zero_g_mcp"}' \
+            http://supervisor/core/api/services/persistent_notification/dismiss >/dev/null 2>&1 || true
+    fi
+}
+
+check_and_notify_mcp() {
+    if [[ -f "$MCP_INFO_FILE" ]]; then
+        local core_stat comm_stat
+        core_stat="$(jq -r '.core_status // "unknown"' "$MCP_INFO_FILE" 2>/dev/null || echo "unknown")"
+        comm_stat="$(jq -r '.community_status // "unknown"' "$MCP_INFO_FILE" 2>/dev/null || echo "unknown")"
+
+        if [[ "$core_stat" == "missing" || "$comm_stat" == "missing" ]]; then
+            bashio::log.warning "Home Assistant MCP integration(s) not installed (Core: ${core_stat}, Community: ${comm_stat}). Notification sent."
+            notify_ha_mcp_missing "$core_stat" "$comm_stat"
+        elif [[ "$core_stat" == "active" ]]; then
+            dismiss_ha_mcp_notification
+        fi
+    fi
+}
+
+check_and_notify_mcp
+
 # ------------------------------------------------------------------------------
 # 5. Authentication Configuration
 # ------------------------------------------------------------------------------

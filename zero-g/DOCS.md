@@ -28,19 +28,22 @@ Klicke in der linken Seitenleiste von Home Assistant auf **Zero-G**. Du bist sof
 
 ## 🔌 Home Assistant MCP Server (Model Context Protocol)
 
-Zero-G konfiguriert den **Home Assistant MCP Server** automatisch vor:
+Zero-G unterstützt und verbindet automatisch beide Home Assistant MCP-Varianten:
+
+1. **Nativer Core MCP Server (`mcp_server`, `/api/mcp`)**:
+   - Die offizielle Home Assistant Core-Integration zur Sprach- und Assist-Steuerung.
+   - Ermöglicht das Schalten von Entitäten (Lichter, Schalter, Thermostate, Szenen, Skripte) und den Abruf von Live-Kontext.
+   - [🔗 Jetzt mit My Home Assistant einrichten](https://my.home-assistant.io/redirect/config_flow_start/?domain=mcp_server)
+
+2. **Community MCP Server (`czechbol/hass-mcp`, `/api/hass_mcp`)**:
+   - Die erweiterte Entwickler-Integration (über HACS) für vollständige Administration.
+   - Ermöglicht das Bearbeiten von YAML-Dateien unter `/config`, Lovelace-Dashboards, HACS-Paketen und Backups.
+   - [📦 In HACS öffnen](https://my.home-assistant.io/redirect/hacs_repository/?owner=czechbol&repository=hass-mcp&category=integration) | [🔗 Integration hinzufügen](https://my.home-assistant.io/redirect/config_flow_start/?domain=hass_mcp)
 
 - **Automatischer Modus (`ha_mcp_mode: auto`)**:
-  Das Add-on nutzt das interne Supervisor-Netzwerk (`http://supervisor/core/api/mcp`) und den automatisch bereitgestellten Supervisor-Token. Du musst **keine** Token manuell erstellen oder kopieren!
+  Das Add-on nutzt das interne Supervisor-Netzwerk (`http://supervisor/core/api/mcp` und `http://supervisor/core/api/hass_mcp`) und den automatisch bereitgestellten Supervisor-Token. Sobald eine Integration in Home Assistant aktiv ist, wird sie automatisch erkannt und eingebunden.
 - **Manueller Modus (`ha_mcp_mode: manual`)**:
-  Falls du einen Long-Lived Access Token (Langlebigen Zugangs-Token) verwenden möchtest, kannst du deine Home Assistant URL und den Token in der Konfiguration eintragen.
-- **MCP Historien-Server (`ha_mcp_history_enabled`)**:
-  Aktiviert optional den Endpunkt für Verlaufsdaten und Statistiken (`/api/hass_mcp`).
-
-### Was kann Zero-G mit dem MCP-Server tun?
-- **Entitäten steuern**: Lichter schalten, Szenen aktivieren, Thermostate einstellen, Staubsauger starten.
-- **Zustände abfragen**: Live-Zustände aller Sensoren und Geräte im Smart Home auslesen.
-- **Konfigurationen bearbeiten**: Direkter Zugriff auf `/config` (Automatisierungen, Scripts, `configuration.yaml`, Dashboards).
+  Falls du einen externen Host oder Long-Lived Access Token verwenden möchtest, kannst du deine URL und den Token in der Konfiguration eintragen.
 
 ---
 
