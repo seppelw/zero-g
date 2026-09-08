@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- 🐛 **Fix**: Dockerfile Build-Konflikt behoben (redundante Bashio-Installation entfernt).
+
 ## 1.0.0 (Initial Release: Zero-G)
 
 - 🛸 **Zero-G Launch**: Schwerelose KI-Entwicklung und Smart-Home-Orchestrierung für Home Assistant powered by Google Antigravity.
