@@ -260,6 +260,30 @@
       background-color: rgba(16, 185, 129, 0.15);
       color: var(--ha-success);
     }
+
+    .auth-banner-box {
+      background: linear-gradient(135deg, rgba(3, 169, 244, 0.08), rgba(99, 102, 241, 0.08));
+      border: 1px solid rgba(3, 169, 244, 0.3);
+      border-radius: 12px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+
+    .auth-url-input {
+      flex: 1;
+      background-color: var(--ha-code-bg);
+      border: 1px solid var(--ha-card-border);
+      border-radius: 8px;
+      color: var(--ha-text);
+      padding: 9px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .auth-url-input:focus {
+      border-color: var(--ha-primary);
+    }
   </style>
 </head>
 <body>
@@ -284,22 +308,53 @@
     </div>
 
     <!-- Step 1: Authentication -->
-    <div class="card">
+    <div class="card" id="auth-card">
       <div class="card-title">
-        <span class="step-badge">1</span>
+        <span class="step-badge" id="auth-step-badge">1</span>
         <h3>Google Antigravity Authentifizierung</h3>
       </div>
       <div class="step-content">
-        <p>Antigravity benötigt eine einmalige Autorisierung mit deinem Google-Konto. Wähle eine der folgenden Optionen:</p>
+        <!-- Section A: Pending Authentication -->
+        <div id="auth-pending-section">
+          <p>Zero-G benötigt eine einmalige Autorisierung mit deinem Google-Konto. Klicke auf den Button unten, um dich direkt bei Google anzumelden:</p>
 
-        <div class="feature-grid">
-          <div class="feature-item">
-            <h5>Option A: Über das Add-on Log</h5>
-            <p>Öffne in Home Assistant den Reiter <strong>Protokoll (Log)</strong> dieses Add-ons. Dort findest du den personalisierten Google-Anmeldelink. Öffne ihn im Browser und bestätige die Berechtigung.</p>
+          <div style="margin: 16px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <a class="btn btn-primary" id="btn-auth-link" href="#" target="_blank" style="font-size: 15px; padding: 12px 22px; box-shadow: 0 4px 14px 0 rgba(3, 169, 244, 0.35);">
+              🔗 Jetzt mit Google anmelden
+            </a>
+            <button class="btn btn-secondary" onclick="goToConfig()">
+              ⚙️ Zur Add-on Konfiguration
+            </button>
           </div>
-          <div class="feature-item">
-            <h5>Option B: Token in Add-on Konfiguration</h5>
-            <p>Hinterlege ein bestehendes OAuth-Token direkt in den Add-on Einstellungen unter <code>auth_token</code> und starte das Add-on neu.</p>
+
+          <div class="auth-banner-box">
+            <div style="font-size: 12px; color: var(--ha-text-muted); margin-bottom: 8px; font-weight: 600;">Oder Anmeldelink manuell öffnen / kopieren:</div>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" class="auth-url-input" id="auth-url-input" readonly value="Lade personalisierten Anmeldelink...">
+              <button class="btn btn-secondary" id="btn-copy-url" onclick="copyAuthUrl()" style="white-space: nowrap; padding: 8px 14px; font-size: 13px;">
+                📋 Link kopieren
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; background-color: var(--ha-code-bg); border-radius: 8px; padding: 14px 18px; font-size: 13px; border-left: 3px solid var(--ha-primary);">
+            <strong>In 3 einfachen Schritten startklar:</strong>
+            <ol style="margin-left: 20px; margin-top: 8px; line-height: 1.7;">
+              <li>Klicke oben auf <strong>Jetzt mit Google anmelden</strong> und bestätige den Login bei Google.</li>
+              <li>Kopiere den angezeigten Autorisierungscode (beginnt mit <code>4/...</code>) oder die Weiterleitungs-URL.</li>
+              <li>Klicke auf <strong>Zur Add-on Konfiguration</strong>, trage den Code unter <code>auth_token</code> ein und klicke auf <strong>Speichern &amp; Neustarten</strong>.</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Section B: Active Authentication -->
+        <div id="auth-active-section" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 10px; background-color: rgba(16, 185, 129, 0.1); border: 1px solid var(--ha-success);">
+            <div style="font-size: 28px;">✅</div>
+            <div>
+              <h5 style="color: var(--ha-success); font-size: 15px; margin-bottom: 3px; font-weight: 600;">Erfolgreich mit Google verbunden</h5>
+              <p style="font-size: 13px; color: var(--ha-text-muted); margin: 0;">Die Google Antigravity Authentifizierung ist aktiv und dauerhaft im <code>/data</code>-Speicher gesichert.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -354,22 +409,49 @@
   </div>
 
   <script>
+    let cachedAuthUrl = "";
+
     async function checkStatus() {
+      const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
+
+      // 1. Fetch authentication status
       try {
-        const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
+        const authRes = await fetch(base + '/auth_info.json?t=' + Date.now());
+        if (authRes.ok) {
+          const authData = await authRes.json();
+          if (authData.auth_url) {
+            cachedAuthUrl = authData.auth_url;
+            const authBtn = document.getElementById('btn-auth-link');
+            const authInput = document.getElementById('auth-url-input');
+            if (authBtn) authBtn.href = authData.auth_url;
+            if (authInput) authInput.value = authData.auth_url;
+          }
+
+          if (authData.authenticated) {
+            setAuthUIState(true);
+          } else {
+            setAuthUIState(false);
+          }
+        }
+      } catch (e) {
+        // Continue to health check
+      }
+
+      // 2. Fetch /_health to check if Antigravity daemon is live
+      try {
         const res = await fetch(base + '/_health?t=' + Date.now());
         if (res.ok) {
-          const data = await res.json().catch(() => ({}));
           document.getElementById('status-dot').style.backgroundColor = 'var(--ha-success)';
           document.getElementById('status-dot').style.animation = 'none';
           document.getElementById('status-title').innerText = 'Zero-G Laufzeitumgebung aktiv! (Online)';
           document.getElementById('status-desc').innerText = 'Online auf antigravity.google als "homeassistant-zero-g" · Bereit für Remote-Control Verbindungen.';
+          setAuthUIState(true);
           return true;
         } else {
           document.getElementById('status-dot').style.backgroundColor = 'var(--ha-warning)';
           document.getElementById('status-dot').style.animation = 'pulse 2s infinite';
-          document.getElementById('status-title').innerText = 'Warte auf Authentifizierung...';
-          document.getElementById('status-desc').innerText = 'Bitte führe Schritt 1 aus (im Add-on Protokoll autorisieren).';
+          document.getElementById('status-title').innerText = 'Google-Authentifizierung erforderlich';
+          document.getElementById('status-desc').innerText = 'Bitte führe Schritt 1 aus (Google-Login über den Button oder Link).';
         }
       } catch (e) {
         document.getElementById('status-dot').style.backgroundColor = 'var(--ha-error)';
@@ -377,6 +459,57 @@
         document.getElementById('status-desc').innerText = 'Das Add-on oder der Nginx-Proxy ist noch nicht bereit.';
       }
       return false;
+    }
+
+    function setAuthUIState(isAuthenticated) {
+      const pendingSec = document.getElementById('auth-pending-section');
+      const activeSec = document.getElementById('auth-active-section');
+      const badge = document.getElementById('auth-step-badge');
+
+      if (isAuthenticated) {
+        if (pendingSec) pendingSec.style.display = 'none';
+        if (activeSec) activeSec.style.display = 'block';
+        if (badge) {
+          badge.innerText = '✓';
+          badge.style.backgroundColor = 'var(--ha-success)';
+        }
+      } else {
+        if (pendingSec) pendingSec.style.display = 'block';
+        if (activeSec) activeSec.style.display = 'none';
+        if (badge) {
+          badge.innerText = '1';
+          badge.style.backgroundColor = 'var(--ha-primary)';
+        }
+      }
+    }
+
+    function copyAuthUrl() {
+      const input = document.getElementById('auth-url-input');
+      const textToCopy = (input && input.value && !input.value.startsWith('Lade')) ? input.value : cachedAuthUrl;
+      if (textToCopy) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          const btn = document.getElementById('btn-copy-url');
+          if (btn) {
+            btn.innerText = '✓ Kopiert!';
+            setTimeout(() => { btn.innerText = '📋 Link kopieren'; }, 2500);
+          }
+        }).catch(() => {
+          if (input) {
+            input.select();
+            document.execCommand('copy');
+          }
+        });
+      }
+    }
+
+    function goToConfig() {
+      try {
+        if (window.top && window.top.location) {
+          window.top.location.href = '/hassio/addon/zero-g/config';
+          return;
+        }
+      } catch (e) {}
+      window.location.href = '/hassio/addon/zero-g/config';
     }
 
     // Poll every 5 seconds

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.4
+
+- ✨ **Neu (Ease of Use)**: Komfortablerer Google-Authentifizierungs-Workflow ohne Umweg über das Add-on-Protokoll:
+  - **Home Assistant Benachrichtigung**: Erzeugt automatisch eine persistente Home Assistant Benachrichtigung (`persistent_notification`) mit direkt anklickbarem Google-Anmeldelink, sobald eine Authentifizierung erforderlich ist. Nach erfolgreicher Anmeldung wird die Benachrichtigung automatisch wieder entfernt.
+  - **Interaktiver Login im Ingress-Statusfenster**: Das Onboarding-Dashboard zeigt bei ausstehender Authentifizierung nun eine prominente Aktionsbox mit einem 1-Klick-Button (*🔗 Jetzt mit Google anmelden*), einem Ein-Klick-Kopierfeld für den Link und einer Direktverlinkung zum *Konfiguration*-Tab des Add-ons.
+  - **Live Auth-Status-API**: Nginx liefert über den Endpunkt `/auth_info.json` den aktuellen Authentifizierungsstatus in Echtzeit aus, sodass das Dashboard sofort und ohne Neuladen von der Anmeldeaufforderung zur aktiven Statusanzeige wechselt.
+
 ## 1.1.3
 
 - 🐛 **Fix**: Google-Authentifizierungs-Flow vollständig überarbeitet und stabilisiert:

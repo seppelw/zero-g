@@ -270,20 +270,67 @@ if [[ -n "$AUTH_TOKEN" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
     fi
 fi
 
+AUTH_INFO_FILE="/var/www/onboarding/auth_info.json"
+
+notify_ha_auth_required() {
+    local auth_url="$1"
+    if [[ -n "${SUPERVISOR_TOKEN:-}" ]]; then
+        local payload
+        payload=$(jq -n \
+            --arg url "$auth_url" \
+            '{
+                notification_id: "zero_g_auth",
+                title: "🛸 Zero-G: Google-Anmeldung erforderlich",
+                message: ("Zero-G benötigt eine einmalige Autorisierung mit deinem Google-Konto.\n\n[👉 **Hier klicken: Jetzt Google-Konto verbinden**](" + $url + ")\n\nKopiere danach den Autorisierungscode (beginnt mit `4/...`) und trage ihn in den [Add-on-Einstellungen](/hassio/addon/zero-g/config) unter `auth_token` ein.")
+            }')
+
+        curl -s -m 5 -X POST \
+            -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$payload" \
+            http://supervisor/core/api/services/persistent_notification/create >/dev/null 2>&1 || true
+    fi
+}
+
+dismiss_ha_auth_notification() {
+    if [[ -n "${SUPERVISOR_TOKEN:-}" ]]; then
+        curl -s -m 5 -X POST \
+            -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"notification_id": "zero_g_auth"}' \
+            http://supervisor/core/api/services/persistent_notification/dismiss >/dev/null 2>&1 || true
+    fi
+}
+
+update_auth_status() {
+    local is_authed="$1"
+    local auth_url="${2:-}"
+    mkdir -p "$(dirname "$AUTH_INFO_FILE")"
+    if [[ "$is_authed" == "true" ]]; then
+        printf '{"authenticated":true,"auth_url":""}\n' > "$AUTH_INFO_FILE"
+        dismiss_ha_auth_notification
+    else
+        printf '{"authenticated":false,"auth_url":"%s"}\n' "$auth_url" > "$AUTH_INFO_FILE"
+        notify_ha_auth_required "$auth_url"
+    fi
+}
+
 # Verify active session validity
 if /usr/bin/agy-auth.sh check_token; then
     bashio::log.info "Authentication verified: valid session active."
     /usr/bin/agy-auth.sh reset_verifier || true
+    update_auth_status true
 else
     bashio::log.warning "No valid authentication found (missing, invalid, or expired)."
     rm -f "$TOKEN_FILE"
+
+    auth_url="$(/usr/bin/agy-auth.sh generate_url)"
+    update_auth_status false "$auth_url"
 
     echo -e "\n\033[1;33m=======================================================================\033[0m"
     echo -e "\033[1;37m ZERO-G ANMELDUNG: Google-Konto verbinden\033[0m"
     echo -e "\033[1;33m=======================================================================\033[0m"
     echo -e "Bitte öffne folgenden Link in deinem Browser, um Antigravity zu autorisieren:\n"
-
-    auth_url="$(/usr/bin/agy-auth.sh generate_url)"
     echo -e "\033[1;34m${auth_url}\033[0m\n"
 
     echo -e "Anleitung:"
@@ -363,6 +410,7 @@ while true; do
         bashio::log.warning "Antigravity exited because authentication credentials are no longer valid."
         rm -f "$TOKEN_FILE"
         auth_url="$(/usr/bin/agy-auth.sh generate_url)"
+        update_auth_status false "$auth_url"
         bashio::log.info "Please visit this URL to re-authenticate: ${auth_url}"
         while true; do
             sleep 3600 &
