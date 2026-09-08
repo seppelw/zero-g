@@ -12,9 +12,9 @@
 # ==============================================================================
 set -euo pipefail
 
-CONFIG_DIR="/data/.gemini/config"
-CONFIG_FILE="${CONFIG_DIR}/mcp_config.json"
-OPTIONS_FILE="/data/options.json"
+: "${CONFIG_DIR:=/data/.gemini/config}"
+: "${CONFIG_FILE:=${CONFIG_DIR}/mcp_config.json}"
+: "${OPTIONS_FILE:=/data/options.json}"
 
 log() {
     local level="$1"; shift
@@ -42,7 +42,7 @@ opt() {
     local key="$1" default="${2:-}"
     if [[ -f "$OPTIONS_FILE" ]]; then
         local val
-        val="$(jq -r --arg k "$key" '.[$k] // empty' "$OPTIONS_FILE")"
+        val="$(jq -r --arg k "$key" 'if has($k) and (.[$k] != null) then .[$k] else empty end' "$OPTIONS_FILE")"
         if [[ -n "$val" ]] && [[ "$val" != "null" ]]; then
             printf '%s' "$val"
             return

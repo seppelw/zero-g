@@ -32,3 +32,8 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: 'antigravity/rootfs/usr/bin'
+
+      - name: Run MCP Setup Unit Tests
+        run: |
+          python3 -m unittest discover -s tests -p "test_*.py" -v
+

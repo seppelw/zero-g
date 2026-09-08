@@ -23,7 +23,7 @@ else
     bashio::log.error()   { echo "[ERROR]   $*"; }
     bashio::config() {
         if [[ -f /data/options.json ]]; then
-            jq -r --arg k "$1" '.[$k] // empty' /data/options.json
+            jq -r --arg k "$1" 'if has($k) and (.[$k] != null) then .[$k] else empty end' /data/options.json
         fi
     }
 fi
