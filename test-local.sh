@@ -174,6 +174,7 @@ fi
 if command -v nginx >/dev/null 2>&1; then
     NGINX_TEST_TMP="$(mktemp --suffix=.conf)"
     cat << EOF > "$NGINX_TEST_TMP"
+pid /tmp/nginx_test.pid;
 events { worker_connections 1024; }
 http {
     include ${PWD}/zero-g/rootfs/etc/nginx/servers/ingress.conf;

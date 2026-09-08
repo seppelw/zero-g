@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.9
+
+- 🐛 **Fix**: GitHub Actions CI Workflow (`lint.yaml`): Nginx-Syntaxprüfung für nicht-privilegierte Runner-Umgebungen repariert (Fehler `open() "/run/nginx.pid" failed (13: Permission denied)` durch explizite Angabe von `pid /tmp/nginx_test.pid;` sowie `sudo nginx -t` behoben). Zusätzlich Validierung der Übersetzungsdateien (`translations/en.yaml` & `translations/de.yaml`) in CI integriert.
+
 ## 1.1.8
 
 - 🌐 **Neu (Mehrsprachigkeit & Internationalisierung)**:

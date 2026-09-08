@@ -27,6 +27,8 @@ jobs:
           python -c "import yaml; yaml.safe_load(open('repository.yaml'))"
           python -c "import yaml; yaml.safe_load(open('zero-g/config.yaml'))"
           python -c "import yaml; yaml.safe_load(open('zero-g/build.yaml'))"
+          python -c "import yaml; yaml.safe_load(open('zero-g/translations/en.yaml'))"
+          python -c "import yaml; yaml.safe_load(open('zero-g/translations/de.yaml'))"
 
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
@@ -41,6 +43,6 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y nginx
           NGINX_TEST_TMP=$(mktemp --suffix=.conf)
-          printf "events { worker_connections 1024; }\nhttp {\n    include %s;\n}\n" "$PWD/zero-g/rootfs/etc/nginx/servers/ingress.conf" > "$NGINX_TEST_TMP"
-          nginx -t -c "$NGINX_TEST_TMP"
+          printf "pid /tmp/nginx_test.pid;\nevents { worker_connections 1024; }\nhttp {\n    include %s;\n}\n" "$PWD/zero-g/rootfs/etc/nginx/servers/ingress.conf" > "$NGINX_TEST_TMP"
+          sudo nginx -t -c "$NGINX_TEST_TMP"
           rm -f "$NGINX_TEST_TMP"
