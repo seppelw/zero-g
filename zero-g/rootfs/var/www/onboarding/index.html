@@ -359,21 +359,22 @@
         const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
         const res = await fetch(base + '/_health?t=' + Date.now());
         if (res.ok) {
+          const data = await res.json().catch(() => ({}));
           document.getElementById('status-dot').style.backgroundColor = 'var(--ha-success)';
           document.getElementById('status-dot').style.animation = 'none';
-          document.getElementById('status-title').innerText = 'Zero-G Laufzeitumgebung aktiv!';
-          document.getElementById('status-desc').innerText = 'Das Add-on ist online und wartet auf eingehende Remote-Control Verbindungen.';
+          document.getElementById('status-title').innerText = 'Zero-G Laufzeitumgebung aktiv! (Online)';
+          document.getElementById('status-desc').innerText = 'Online auf antigravity.google als "homeassistant-zero-g" · Bereit für Remote-Control Verbindungen.';
           return true;
         } else {
           document.getElementById('status-dot').style.backgroundColor = 'var(--ha-warning)';
           document.getElementById('status-dot').style.animation = 'pulse 2s infinite';
           document.getElementById('status-title').innerText = 'Warte auf Authentifizierung...';
-          document.getElementById('status-desc').innerText = 'Bitte führe Schritt 1 aus.';
+          document.getElementById('status-desc').innerText = 'Bitte führe Schritt 1 aus (im Add-on Protokoll autorisieren).';
         }
       } catch (e) {
         document.getElementById('status-dot').style.backgroundColor = 'var(--ha-error)';
         document.getElementById('status-title').innerText = 'Fehler bei der Verbindung';
-        document.getElementById('status-desc').innerText = 'Das Add-on ist noch nicht gestartet.';
+        document.getElementById('status-desc').innerText = 'Das Add-on oder der Nginx-Proxy ist noch nicht bereit.';
       }
       return false;
     }

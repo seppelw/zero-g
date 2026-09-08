@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- 🐛 **Fix**: Verbindungs-Health-Check im Ingress Dashboard angepasst: Nginx pollt nun den nativen `/healthz` Endpunkt der Antigravity-CLI. Sobald der Daemon online ist, schaltet die Status-Ampel im Dashboard sofort auf Grün (`Online als "homeassistant-zero-g"`).
+
 ## 1.1.0
 
 - 🐛 **Fix**: Das Home Assistant Ingress UI ("Web UI öffnen") gibt nun keinen `404 page not found` Fehler mehr aus, nachdem die Authentifizierung abgeschlossen ist. Da die Antigravity-CLI kein lokales Frontend ausliefert, sondern als Remote-Control-Daemon fungiert, dient das Ingress-Fenster nun als persistentes Zero-G Dashboard mit klaren Anweisungen und einem Link zur offiziellen Web-Oberfläche (`antigravity.google`).
