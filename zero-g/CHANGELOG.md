@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+
+- 🐛 **Fix**: Das Home Assistant Ingress UI ("Web UI öffnen") gibt nun keinen `404 page not found` Fehler mehr aus, nachdem die Authentifizierung abgeschlossen ist. Da die Antigravity-CLI kein lokales Frontend ausliefert, sondern als Remote-Control-Daemon fungiert, dient das Ingress-Fenster nun als persistentes Zero-G Dashboard mit klaren Anweisungen und einem Link zur offiziellen Web-Oberfläche (`antigravity.google`).
+
 ## 1.0.9
 
 - 🐛 **Fix**: Behebt den `client_secret is missing` Fehler bei der Token-Einlösung. Das Add-on injiziert nun das korrekte Client-Secret der Antigravity-CLI in den OAuth-Exchange-Request, wodurch Google den Token erfolgreich ausstellt.

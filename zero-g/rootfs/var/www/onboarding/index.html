@@ -343,9 +343,10 @@
         <h3>Webinterface aufrufen</h3>
       </div>
       <div class="step-content">
-        <p>Sobald die Anmeldung abgeschlossen ist, schaltet das Webinterface automatisch um:</p>
+        <p>Die Antigravity-Laufzeitumgebung läuft nun erfolgreich im Hintergrund deines Home Assistant!</p>
+        <p style="margin-top: 8px;">Um auf die KI-Entwicklungsumgebung zuzugreifen, nutze das offizielle Webinterface und verbinde dich über die <strong>Remote Control</strong> Funktion mit <code>homeassistant-zero-g</code>.</p>
         <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn btn-primary" onclick="launchApp()">🚀 Webinterface jetzt öffnen</button>
+          <a class="btn btn-primary" href="https://antigravity.google/" target="_blank">🚀 Zero-G Webinterface öffnen</a>
           <a class="btn btn-secondary" href="https://github.com/seppelw/zero-g" target="_blank">📖 Dokumentation & GitHub</a>
         </div>
       </div>
@@ -355,31 +356,26 @@
   <script>
     async function checkStatus() {
       try {
-        // Use a dedicated health-check endpoint that bypasses the onboarding
-        // fallback.  Nginx proxies /_health to the upstream daemon; if agy is
-        // up it returns 200, otherwise nginx returns 502.
         const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
         const res = await fetch(base + '/_health?t=' + Date.now());
         if (res.ok) {
           document.getElementById('status-dot').style.backgroundColor = 'var(--ha-success)';
           document.getElementById('status-dot').style.animation = 'none';
-          document.getElementById('status-title').innerText = 'Zero-G ist bereit!';
-          document.getElementById('status-desc').innerText = 'Lade Webinterface...';
-          setTimeout(() => {
-            // Navigate to the Ingress root to load the real UI
-            window.location.href = base + '/';
-          }, 800);
+          document.getElementById('status-title').innerText = 'Zero-G Laufzeitumgebung aktiv!';
+          document.getElementById('status-desc').innerText = 'Das Add-on ist online und wartet auf eingehende Remote-Control Verbindungen.';
           return true;
+        } else {
+          document.getElementById('status-dot').style.backgroundColor = 'var(--ha-warning)';
+          document.getElementById('status-dot').style.animation = 'pulse 2s infinite';
+          document.getElementById('status-title').innerText = 'Warte auf Authentifizierung...';
+          document.getElementById('status-desc').innerText = 'Bitte führe Schritt 1 aus.';
         }
       } catch (e) {
-        // Network error or CORS — upstream not ready
+        document.getElementById('status-dot').style.backgroundColor = 'var(--ha-error)';
+        document.getElementById('status-title').innerText = 'Fehler bei der Verbindung';
+        document.getElementById('status-desc').innerText = 'Das Add-on ist noch nicht gestartet.';
       }
       return false;
-    }
-
-    function launchApp() {
-      const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
-      window.location.href = base + '/';
     }
 
     // Poll every 5 seconds

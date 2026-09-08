@@ -1,6 +1,6 @@
 name: "Zero-G"
 slug: "zero-g"
-version: "1.0.9"
+version: "1.1.0"
 description: "Zero-G: Schwerelose KI-Entwicklungsumgebung & Webinterface für Home Assistant powered by Google Antigravity"
 url: "https://github.com/seppelw/zero-g"
 arch:

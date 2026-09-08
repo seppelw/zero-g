@@ -73,15 +73,16 @@ flowchart TD
     H --> I[Zero-G Web UI öffnet sich in der Seitenleiste]
 ```
 
-### Schritt 1: Starten & Ingress aktivieren
-Aktiviere in den Add-on Einstellungen den Schalter **In der Seitenleiste anzeigen** und starte das Add-on.
+### Erste Schritte
 
-### Schritt 2: Google Antigravity Authentifizierung
-- **Über das Log**: Öffne den Reiter **Protokoll** des Add-ons. Kopiere den dort generierten Google-Login-Link, öffne ihn in deinem Browser und bestätige die Berechtigung.
-- **Alternativ über Optionen**: Falls du bereits ein OAuth-Token hast, trage es in den Add-on Optionen im Feld `auth_token` ein.
+1. Nach der Installation klicke auf **Start**.
+2. Klicke auf **Web UI öffnen** (oder den Seitenleisten-Button), um das Zero-G Dashboard zu öffnen.
+3. Im Dashboard findest du im ersten Schritt Anweisungen zur **einmaligen Google-Authentifizierung**.
+4. Sobald das Add-on authentifiziert ist, zeigt das Dashboard den Status "Aktiv" an.
+5. **Wichtig:** Das Add-on selbst dient als *Hintergrund-Laufzeitumgebung*. Um die KI-Entwicklungsumgebung zu öffnen, klicke im Dashboard auf den blauen Button **🚀 Zero-G Webinterface öffnen** (oder navigiere direkt zu [https://antigravity.google/](https://antigravity.google/)).
+6. Wähle dort deine `homeassistant-zero-g` Remote Control Instanz aus und klicke auf **Connect**.
 
-### Schritt 3: Home Assistant MCP Server nutzen
-Zero-G konfiguriert den MCP-Server automatisch. Sobald du das Webinterface in der Seitenleiste öffnest, stehen dir unter anderem folgende Tools zur Verfügung:
+> **Pro-Tipp:** Zero-G kann dein gesamtes Smart Home steuern und konfigurieren! Versuche im Chat Befehle wie _"Mach das Licht im Wohnzimmer an"_, _"Erstelle eine Lovelace Karte für meine Heizungen"_ oder _"Schreibe eine Automation, die mich benachrichtigt, wenn die Waschmaschine fertig ist"_. Sobald du das Webinterface in der Seitenleiste öffnest, stehen dir unter anderem folgende Tools zur Verfügung:
 - `homeassistant__GetLiveContext`
 - `intent__HassTurnOn` / `intent__HassTurnOff`
 - `climate__HassClimateSetTemperature`
