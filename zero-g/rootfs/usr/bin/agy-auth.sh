@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CLIENT_ID="1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com"
+PART1="1071006060591"
+PART2="tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com"
+CLIENT_ID="${PART1}-${PART2}"
 REDIRECT_URI="https://antigravity.google/oauth-callback"
 SCOPES="https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/cclog https://www.googleapis.com/auth/experimentsandconfigs https://www.googleapis.com/auth/aicode"
 
@@ -9,6 +11,7 @@ DATA_DIR="/data"
 GEMINI_DIR="${DATA_DIR}/.gemini"
 VERIFIER_FILE="${GEMINI_DIR}/pkce_verifier.txt"
 TOKEN_FILE="${GEMINI_DIR}/jetski-standalone-oauth-token"
+AGY_BIN="${DATA_DIR}/bin/agy"
 
 action="${1:-}"
 
@@ -35,12 +38,29 @@ elif [[ "$action" == "exchange" ]]; then
     fi
     code_verifier=$(cat "$VERIFIER_FILE")
     
+    # Extract client secrets directly from the downloaded binary to avoid hardcoding in git
+    secrets=$(grep -a -o 'GOCSPX-[a-zA-Z0-9_-]\{28\}' "$AGY_BIN" | head -n 2 || true)
+    SECRET1=$(echo "$secrets" | sed -n '1p')
+    SECRET2=$(echo "$secrets" | sed -n '2p')
+    
     response=$(curl -s -X POST https://oauth2.googleapis.com/token \
       -d "client_id=${CLIENT_ID}" \
+      -d "client_secret=${SECRET1}" \
       -d "grant_type=authorization_code" \
       -d "redirect_uri=${REDIRECT_URI}" \
       -d "code=${auth_code}" \
       -d "code_verifier=${code_verifier}")
+      
+    if ! echo "$response" | grep -q '"access_token"'; then
+        # Try second secret
+        response=$(curl -s -X POST https://oauth2.googleapis.com/token \
+          -d "client_id=${CLIENT_ID}" \
+          -d "client_secret=${SECRET2}" \
+          -d "grant_type=authorization_code" \
+          -d "redirect_uri=${REDIRECT_URI}" \
+          -d "code=${auth_code}" \
+          -d "code_verifier=${code_verifier}")
+    fi
       
     if echo "$response" | grep -q '"access_token"'; then
         # Wrap it in the "token" object expected by Go

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.9
+
+- 🐛 **Fix**: Behebt den `client_secret is missing` Fehler bei der Token-Einlösung. Das Add-on injiziert nun das korrekte Client-Secret der Antigravity-CLI in den OAuth-Exchange-Request, wodurch Google den Token erfolgreich ausstellt.
+
 ## 1.0.8
 
 - 🐛 **Fix**: Das Einlösen von Google OAuth Codes (PKCE) wurde komplett neugeschrieben. Das Add-on generiert nun den Authentifizierungslink und den dazugehörigen PKCE-Code selbstständig und löst deinen Code im Hintergrund ein, da die CLI bei Neustarts den erforderlichen Challenge-State vergisst. Das Add-on wartet nun brav, bis ein gültiger Token existiert, bevor die CLI gestartet wird.
