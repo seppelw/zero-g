@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- 🐛 **Fix**: Supervisor Validierungsfehler (`Ungültige Konfiguration - expected a URL`) beim Add-on Start behoben, indem das Schema für optionale URLs von `url?` auf `str?` geändert wurde.
+
 ## 1.0.1
 
 - 🐛 **Fix**: Dockerfile Build-Konflikt behoben (redundante Bashio-Installation entfernt).
