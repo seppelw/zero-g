@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4
+
+- 🐛 **Fix**: Umgebungsvariable `HOME` wird nun explizit auf `/root` gesetzt. Behebt einen Fehler (`$HOME is not defined`), bei dem die Antigravity CLI in manchen Home Assistant Installationen nicht starten konnte, da die s6-Umgebung `HOME` nicht automatisch exportiert hat.
+
 ## 1.0.3
 
 - 🛡️ **Neu**: Präventiver Hardware-Kompatibilitätscheck (PCLMULQDQ CPU-Flag) hinzugefügt. Das Add-on beendet sich nun mit einer klaren Fehler- und Lösungsbeschreibung (z.B. Umstellung des VM CPU Typs in Proxmox auf "host"), anstatt in einer Boot-Schleife (`sigill-fail-fast`) hängen zu bleiben.

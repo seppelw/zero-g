@@ -12,6 +12,9 @@
 # ==============================================================================
 set -euo pipefail
 
+# Ensure HOME is set, as some base images or s6-overlay v3 environments might omit it.
+export HOME=/root
+
 # Load Bashio — installed in the Dockerfile from the hassio-addons/bashio repo.
 # If somehow absent, fall back to plain logging and jq-based config parsing.
 if [[ -f /usr/lib/bashio/bashio.sh ]]; then
