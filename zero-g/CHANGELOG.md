@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.8
+
+- 🐛 **Fix**: Das Einlösen von Google OAuth Codes (PKCE) wurde komplett neugeschrieben. Das Add-on generiert nun den Authentifizierungslink und den dazugehörigen PKCE-Code selbstständig und löst deinen Code im Hintergrund ein, da die CLI bei Neustarts den erforderlichen Challenge-State vergisst. Das Add-on wartet nun brav, bis ein gültiger Token existiert, bevor die CLI gestartet wird.
+
 ## 1.0.7
 
 - 🐛 **Fix**: Umgebungsvariablen-Injektion für s6-overlay v3 repariert. Das Skript re-exekutiert sich nun mit `with-contenv`, sodass der `SUPERVISOR_TOKEN` verfügbar ist und API-Fehler (403 Forbidden) komplett behoben sind.

@@ -117,15 +117,25 @@ if [[ -n "${AUTH_TOKEN:-}" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
     elif [[ "$AUTH_TOKEN" == "4/"* ]]; then
         # User supplied an Authorization Code
         bashio::log.info "Found Google Authorization Code. Exchanging for access token..."
-        rm -f "$TOKEN_FILE"
-        # Since agy doesn't have a standalone 'auth' command, we trigger a dummy prompt
-        # which will force it to ask for the code on stdin, exchange it, and save the token.
-        echo "$AUTH_TOKEN" | "$AGY_BIN" -p "test" >/dev/null 2>&1 || bashio::log.warning "Auth exchange failed. Code might be expired."
+        if /usr/bin/agy-auth.sh exchange "$AUTH_TOKEN"; then
+            bashio::log.info "Auth exchange successful. Token saved."
+        else
+            bashio::log.error "Auth exchange failed. Code might be expired."
+        fi
     else
         # User supplied a bare access-token string
         printf '{"token":{"access_token":"%s","token_type":"Bearer"}}\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
         chmod 600 "$TOKEN_FILE"
     fi
+fi
+
+# Print manual auth URL if no token exists yet
+if [[ ! -s "$TOKEN_FILE" ]]; then
+    bashio::log.info "No valid authentication found. Starting login..."
+    echo -e "\033[1mPlease visit the following URL to authorize the application:\033[0m\n"
+    auth_url="$(/usr/bin/agy-auth.sh generate_url)"
+    echo -e "\033[34m$auth_url\033[0m\n"
+    bashio::log.info "Enter the authorization code in the Add-on Configuration ('auth_token') and restart."
 fi
 
 # ------------------------------------------------------------------------------
@@ -297,10 +307,18 @@ HUB_PORT=4400
 bashio::log.info "Launching Antigravity (port ${HUB_PORT}, name '${RC_NAME}')..."
 cd "$WORKSPACE_DIR"
 
+if [[ ! -s "$TOKEN_FILE" ]]; then
+    bashio::log.warning "No valid token found. Add-on will idle until an authorization code is provided in the configuration."
+    while true; do
+        sleep 3600 &
+        wait $! || true
+    done
+fi
+
 while true; do
     "$AGY_BIN" --remote-control \
                --hub-port "$HUB_PORT" \
-               --remote-control-name "$RC_NAME" &
+               --remote-control-name "$RC_NAME" </dev/null &
     AGY_PID=$!
 
     # `wait` returns immediately when a trapped signal arrives, letting
