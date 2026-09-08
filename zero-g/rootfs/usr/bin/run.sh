@@ -110,15 +110,21 @@ fi
 TOKEN_FILE="${GEMINI_DIR}/jetski-standalone-oauth-token"
 
 if [[ -n "${AUTH_TOKEN:-}" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
-    bashio::log.info "Injecting OAuth token from Add-on options..."
+    bashio::log.info "Processing OAuth token from Add-on options..."
     if [[ "$AUTH_TOKEN" == "{"* ]]; then
         # User supplied raw JSON token object
         printf '%s\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
+        chmod 600 "$TOKEN_FILE"
+    elif [[ "$AUTH_TOKEN" == "4/"* ]]; then
+        # User supplied an Authorization Code
+        bashio::log.info "Found Google Authorization Code. Exchanging for access token..."
+        rm -f "$TOKEN_FILE"
+        echo "$AUTH_TOKEN" | "$AGY_BIN" auth login || bashio::log.warning "Auth exchange failed. Code might be expired."
     else
         # User supplied a bare access-token string
         printf '{"token":{"access_token":"%s","token_type":"Bearer"}}\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
+        chmod 600 "$TOKEN_FILE"
     fi
-    chmod 600 "$TOKEN_FILE"
 fi
 
 # ------------------------------------------------------------------------------

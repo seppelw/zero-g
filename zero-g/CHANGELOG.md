@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6
+
+- ✨ **Neu**: Das Add-on erkennt nun automatisch, wenn ein Google OAuth "Authorization Code" (beginnend mit `4/`) in das `auth_token`-Feld eingetragen wird, und tauscht diesen im Hintergrund über `agy auth login` gegen ein echtes Access-Token aus. Dies behebt das Problem, dass die CLI im Hintergrund auf eine Code-Eingabe gewartet hat und dadurch Ingress mit einem 404-Fehler fehlschlug.
+
 ## 1.0.5
 
 - 🐛 **Fix**: Fehlende Berechtigung (`hassio_api: true`) in der Konfiguration hinzugefügt. Das Add-on darf nun wieder die eigenen Einstellungen (inklusive `auth_token` und MCP-Settings) über die Supervisor-API auslesen (behebt `Unable to access the API, forbidden`).
