@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.7
+
+- 🐛 **Fix**: Dynamischer Instanzname im Web-Dashboard: Der konfigurierte Remote-Control-Instanzname (`remote_control_name`, z. B. `homeassistant-zero-g_dev`) wird nun dynamisch in die Statusanzeige und Anleitung des Ingress-Dashboards übernommen, anstatt statisch `homeassistant-zero-g` anzuzeigen.
+
 ## 1.1.6
 
 - 🐛 **Fix**: Markdown-Zeilenumbrüche in der Home Assistant MCP-Benachrichtigung korrigiert: Durch die Umstellung auf native Multiline-Strings werden Paragraphen, Aufzählungszeichen und die My Home Assistant Badges nun sauber mit echten Absätzen statt sichtbaren `\n`-Zeichen gerendert.

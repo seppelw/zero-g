@@ -349,6 +349,14 @@ if [[ -n "$AUTH_TOKEN" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
     fi
 fi
 
+RC_NAME="$(bashio::config 'remote_control_name' || true)"
+if [[ -z "$RC_NAME" ]] || [[ "$RC_NAME" == "null" ]]; then
+    if [[ -f /data/options.json ]]; then
+        RC_NAME="$(jq -r '.remote_control_name // empty' /data/options.json)"
+    fi
+fi
+: "${RC_NAME:=homeassistant-zero-g}"
+
 AUTH_INFO_FILE="/var/www/onboarding/auth_info.json"
 
 notify_ha_auth_required() {
@@ -386,10 +394,10 @@ update_auth_status() {
     local auth_url="${2:-}"
     mkdir -p "$(dirname "$AUTH_INFO_FILE")"
     if [[ "$is_authed" == "true" ]]; then
-        printf '{"authenticated":true,"auth_url":""}\n' > "$AUTH_INFO_FILE"
+        printf '{"authenticated":true,"auth_url":"","remote_control_name":"%s"}\n' "$RC_NAME" > "$AUTH_INFO_FILE"
         dismiss_ha_auth_notification
     else
-        printf '{"authenticated":false,"auth_url":"%s"}\n' "$auth_url" > "$AUTH_INFO_FILE"
+        printf '{"authenticated":false,"auth_url":"%s","remote_control_name":"%s"}\n' "$auth_url" "$RC_NAME" > "$AUTH_INFO_FILE"
         notify_ha_auth_required "$auth_url"
     fi
 }
@@ -457,8 +465,6 @@ trap cleanup SIGTERM SIGINT SIGHUP
 # ------------------------------------------------------------------------------
 # 8. Start Antigravity Remote-Control Server  (foreground loop)
 # ------------------------------------------------------------------------------
-RC_NAME="$(bashio::config 'remote_control_name' || true)"
-: "${RC_NAME:=homeassistant-zero-g}"
 HUB_PORT=4400
 
 cd "$WORKSPACE_DIR"

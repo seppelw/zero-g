@@ -428,7 +428,7 @@
       </div>
       <div class="step-content">
         <p>Die Antigravity-Laufzeitumgebung läuft nun erfolgreich im Hintergrund deines Home Assistant!</p>
-        <p style="margin-top: 8px;">Um auf die KI-Entwicklungsumgebung zuzugreifen, nutze das offizielle Webinterface und verbinde dich über die <strong>Remote Control</strong> Funktion mit <code>homeassistant-zero-g</code>.</p>
+        <p style="margin-top: 8px;">Um auf die KI-Entwicklungsumgebung zuzugreifen, nutze das offizielle Webinterface und verbinde dich über die <strong>Remote Control</strong> Funktion mit <code id="rc-name-code">homeassistant-zero-g</code>.</p>
         <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
           <a class="btn btn-primary" href="https://antigravity.google/" target="_blank">🚀 Zero-G Webinterface öffnen</a>
           <a class="btn btn-secondary" href="https://github.com/seppelw/zero-g" target="_blank">📖 Dokumentation & GitHub</a>
@@ -439,6 +439,7 @@
 
   <script>
     let cachedAuthUrl = "";
+    let cachedRcName = "homeassistant-zero-g";
 
     async function checkStatus() {
       const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
@@ -448,6 +449,12 @@
         const authRes = await fetch(base + '/auth_info.json?t=' + Date.now());
         if (authRes.ok) {
           const authData = await authRes.json();
+          if (authData.remote_control_name) {
+            cachedRcName = authData.remote_control_name;
+            const rcCode = document.getElementById('rc-name-code');
+            if (rcCode) rcCode.innerText = cachedRcName;
+          }
+
           if (authData.auth_url) {
             cachedAuthUrl = authData.auth_url;
             const authBtn = document.getElementById('btn-auth-link');
@@ -484,7 +491,7 @@
           document.getElementById('status-dot').style.backgroundColor = 'var(--ha-success)';
           document.getElementById('status-dot').style.animation = 'none';
           document.getElementById('status-title').innerText = 'Zero-G Laufzeitumgebung aktiv! (Online)';
-          document.getElementById('status-desc').innerText = 'Online auf antigravity.google als "homeassistant-zero-g" · Bereit für Remote-Control Verbindungen.';
+          document.getElementById('status-desc').innerText = 'Online auf antigravity.google als "' + cachedRcName + '" · Bereit für Remote-Control Verbindungen.';
           setAuthUIState(true);
           return true;
         } else {
