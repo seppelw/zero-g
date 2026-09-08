@@ -19,14 +19,15 @@ RUN apt-get update \
         net-tools \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Bashio (not bundled in Debian-based HA images, only in Alpine ones).
-# Bashio provides the standard HA add-on logging and configuration API.
-ARG BASHIO_VERSION="0.16.2"
-RUN curl -fsSL "https://github.com/hassio-addons/bashio/archive/v${BASHIO_VERSION}.tar.gz" \
-        | tar -xz --strip-components=1 -C /tmp/ \
-    && mv /tmp/lib /usr/lib/bashio \
-    && ln -s /usr/lib/bashio/bashio.sh /usr/bin/bashio \
-    && rm -rf /tmp/*
+# Ensure Bashio is available (included by default in official Home Assistant base images)
+RUN which bashio >/dev/null 2>&1 || ( \
+        curl -fsSL "https://github.com/hassio-addons/bashio/archive/v0.16.2.tar.gz" \
+            | tar -xz --strip-components=1 -C /tmp/ \
+        && mkdir -p /usr/lib/bashio \
+        && mv /tmp/lib /usr/lib/bashio \
+        && ln -sf /usr/lib/bashio/bashio.sh /usr/bin/bashio \
+        && rm -rf /tmp/* \
+    )
 
 # Copy filesystem overlay
 COPY rootfs /
