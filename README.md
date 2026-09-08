@@ -11,6 +11,16 @@ Zusätzlich konfiguriert Zero-G automatisch den **Home Assistant MCP Server (Mod
 
 ---
 
+## 💻 Systemanforderungen (WICHTIG für Proxmox/VM-Nutzer)
+
+Dieses Add-on lädt das offiziell kompilierte **Antigravity Binary** von Google herunter. Dieses Binary ist hochoptimiert und erfordert zwingend einen Prozessor, der den Befehlssatz **PCLMULQDQ (PCLMUL)** unterstützt. 
+
+- **Bare-Metal (Echte Hardware)**: Jeder halbwegs moderne Prozessor (ab Intel Westmere / AMD Bulldozer, ca. 2011) unterstützt diesen Befehlssatz.
+- **Virtuelle Maschinen (Proxmox, ESXi, UNRAID)**: ⚠️ Wenn Home Assistant in einer virtuellen Maschine läuft, ist der CPU-Typ in den Einstellungen der VM oft standardmäßig auf Kompatibilität ausgelegt (z.B. `kvm64` oder `qemu64`). Diese simulierten CPUs verstecken moderne Befehlssätze! 
+  - **Die Lösung**: Stelle in Proxmox (oder deinem Hypervisor) den CPU-Typ der Home Assistant VM von `kvm64`/`qemu64` zwingend auf **`host`** um und fahre die VM einmal komplett herunter (Shutdown) und wieder hoch. Andernfalls verweigert das Add-on mit einem Hardware-Kompatibilitätsfehler den Start.
+
+---
+
 ## ✨ Features
 
 - 🚀 **Automatischer Download & Updates**: Lädt beim Start automatisch das neueste offizielle Release von Google herunter (inklusive SHA512-Prüfung). Unterstützt **`amd64` (x86_64)** und **`aarch64` (Raspberry Pi 4/5, HA Green/Yellow)**.

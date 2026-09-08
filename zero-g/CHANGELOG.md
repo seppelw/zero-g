@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3
+
+- 🛡️ **Neu**: Präventiver Hardware-Kompatibilitätscheck (PCLMULQDQ CPU-Flag) hinzugefügt. Das Add-on beendet sich nun mit einer klaren Fehler- und Lösungsbeschreibung (z.B. Umstellung des VM CPU Typs in Proxmox auf "host"), anstatt in einer Boot-Schleife (`sigill-fail-fast`) hängen zu bleiben.
+
 ## 1.0.2
 
 - 🐛 **Fix**: Supervisor Validierungsfehler (`Ungültige Konfiguration - expected a URL`) beim Add-on Start behoben, indem das Schema für optionale URLs von `url?` auf `str?` geändert wurde.

@@ -46,6 +46,30 @@ esac
 bashio::log.info "Detected platform: ${PLATFORM} (${ARCH})"
 
 # ------------------------------------------------------------------------------
+# 1.5 Hardware Compatibility Check
+# ------------------------------------------------------------------------------
+if [[ "$PLATFORM" == "linux_amd64" ]]; then
+    if ! grep -q 'pclmulqdq' /proc/cpuinfo; then
+        bashio::log.error "======================================================================="
+        bashio::log.error " FATAL HARDWARE INCOMPATIBILITY DETECTED"
+        bashio::log.error "======================================================================="
+        bashio::log.error "This add-on requires a CPU with the 'pclmul' (PCLMULQDQ) instruction set."
+        bashio::log.error "Your current processor environment does NOT expose this feature."
+        bashio::log.error ""
+        bashio::log.error "TROUBLESHOOTING:"
+        bashio::log.error "If you are running Home Assistant inside a Virtual Machine (e.g., Proxmox,"
+        bashio::log.error "ESXi, VirtualBox, UNRAID):"
+        bashio::log.error "  -> You MUST change the VM's CPU Type from 'kvm64' or 'qemu64' to 'host'."
+        bashio::log.error "  -> This passes your physical CPU's features to the VM."
+        bashio::log.error ""
+        bashio::log.error "If you are running on bare-metal hardware, your processor is unfortunately"
+        bashio::log.error "too old to run this software (requires Intel Westmere / AMD Bulldozer or newer)."
+        bashio::log.error "======================================================================="
+        exit 1
+    fi
+fi
+
+# ------------------------------------------------------------------------------
 # 2. Setup Persistent Directories & Symlinks
 #
 #   /data is the only volume that survives add-on updates.
