@@ -1,6 +1,6 @@
 # 🛸 Zero-G: Antigravity Assistant für Home Assistant
 
-[![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdinkelhause%2Fzero-g)
+[![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fseppelw%2Fzero-g)
 ![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20aarch64-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Ingress%20Ready-41BDF5?logo=home-assistant)
@@ -31,7 +31,7 @@ Zusätzlich konfiguriert Zero-G automatisch den **Home Assistant MCP Server (Mod
 
 Klicke auf den folgenden Button, um das Repository direkt zu deinem Home Assistant hinzuzufügen:
 
-[![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdinkelhause%2Fzero-g)
+[![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fseppelw%2Fzero-g)
 
 ### Option 2: Manuell hinzufügen
 
@@ -39,7 +39,7 @@ Klicke auf den folgenden Button, um das Repository direkt zu deinem Home Assista
 2. Klicke oben rechts auf das Drei-Punkte-Menü (⋮) und wähle **Repositories**.
 3. Füge folgende Repository-URL ein:
    ```text
-   https://github.com/dinkelhause/zero-g
+   https://github.com/seppelw/zero-g
    ```
 4. Klicke auf **Hinzufügen** und schließe den Dialog.
 5. Das Add-on **Zero-G** erscheint nun im Add-on Store. Klicke darauf und wähle **Installieren**.
@@ -162,4 +162,4 @@ Dieses Projekt ist unter der **MIT-Lizenz** lizenziert – siehe [LICENSE](LICEN
 - Die eigentliche **Google Antigravity Software** (`agy`) wird **nicht** in diesem Repository gehostet oder weiterverbreitet. Sie wird zur Laufzeit vom Endanwender direkt von den offiziellen Google-Servern heruntergeladen und unterliegt den jeweiligen Google Nutzungsbedingungen (Terms of Service).
 - *Google* und *Antigravity* sind Marken der Google LLC. Dieses Projekt ist eine unabhängige Community-Entwicklung und steht in keiner geschäftlichen Verbindung zu Google LLC.
 
-- **Fragen oder Feature-Wünsche?** Erstelle gerne ein Issue im [GitHub Repository](https://github.com/dinkelhause/zero-g/issues).
+- **Fragen oder Feature-Wünsche?** Erstelle gerne ein Issue im [GitHub Repository](https://github.com/seppelw/zero-g/issues).
