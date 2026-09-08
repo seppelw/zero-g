@@ -19,3 +19,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+### Third-Party Software & Trademark Notice
+
+This repository contains wrapper scripts, container definitions, and integration code
+for running Google Antigravity inside Home Assistant.
+
+- The Antigravity binary itself is NOT hosted or distributed in this repository. It is
+  downloaded directly from official Google servers at container startup by the end-user.
+- Google Antigravity is subject to Google's applicable Terms of Service and licensing.
+- Google and Antigravity are trademarks of Google LLC. This project is an independent,
+  community-driven project and is not affiliated with, endorsed by, or sponsored by Google LLC.
