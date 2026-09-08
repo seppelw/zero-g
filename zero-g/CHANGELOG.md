@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5
+
+- 🐛 **Fix**: Fehlende Berechtigung (`hassio_api: true`) in der Konfiguration hinzugefügt. Das Add-on darf nun wieder die eigenen Einstellungen (inklusive `auth_token` und MCP-Settings) über die Supervisor-API auslesen (behebt `Unable to access the API, forbidden`).
+
 ## 1.0.4
 
 - 🐛 **Fix**: Umgebungsvariable `HOME` wird nun explizit auf `/root` gesetzt. Behebt einen Fehler (`$HOME is not defined`), bei dem die Antigravity CLI in manchen Home Assistant Installationen nicht starten konnte, da die s6-Umgebung `HOME` nicht automatisch exportiert hat.

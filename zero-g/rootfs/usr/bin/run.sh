@@ -101,6 +101,12 @@ ln -sf  "$AGY_BIN"          /usr/local/bin/agy
 # 3. Authentication Configuration
 # ------------------------------------------------------------------------------
 AUTH_TOKEN="$(bashio::config 'auth_token' || true)"
+if [[ -z "$AUTH_TOKEN" ]] || [[ "$AUTH_TOKEN" == "null" ]]; then
+    if [[ -f /data/options.json ]]; then
+        AUTH_TOKEN="$(jq -r '.auth_token // empty' /data/options.json)"
+    fi
+fi
+
 TOKEN_FILE="${GEMINI_DIR}/jetski-standalone-oauth-token"
 
 if [[ -n "${AUTH_TOKEN:-}" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
