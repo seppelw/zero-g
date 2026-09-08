@@ -56,7 +56,14 @@ python3 - << 'EOF'
 import sys
 import yaml
 
-files = ['repository.yaml', 'zero-g/config.yaml', 'zero-g/build.yaml', '.github/workflows/lint.yaml']
+files = [
+    'repository.yaml',
+    'zero-g/config.yaml',
+    'zero-g/build.yaml',
+    '.github/workflows/lint.yaml',
+    'zero-g/translations/en.yaml',
+    'zero-g/translations/de.yaml'
+]
 for f in files:
     try:
         with open(f, 'r') as fp:

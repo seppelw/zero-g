@@ -53,6 +53,42 @@
       width: 100%;
     }
 
+    .lang-switch-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      background-color: var(--ha-card);
+      border: 1px solid var(--ha-card-border);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--ha-text-muted);
+      border-radius: 16px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn:hover {
+      color: var(--ha-text);
+    }
+
+    .lang-btn.active {
+      background-color: var(--ha-primary);
+      color: #ffffff;
+    }
+
     header {
       text-align: center;
       margin-bottom: 32px;
@@ -288,10 +324,17 @@
 </head>
 <body>
   <div class="container">
+    <div class="lang-switch-container">
+      <div class="lang-switch">
+        <button id="btn-lang-de" class="lang-btn active" onclick="setLanguage('de')">🇩🇪 Deutsch</button>
+        <button id="btn-lang-en" class="lang-btn" onclick="setLanguage('en')">🇬🇧 English</button>
+      </div>
+    </div>
+
     <header>
       <div class="logo-badge">🛸</div>
       <h1>Zero-G Assistant</h1>
-      <p class="subtitle">Schwerelose KI-Entwicklung & MCP-Orchestrierung mit Google Antigravity</p>
+      <p class="subtitle" id="i18n-subtitle">Schwerelose KI-Entwicklung & MCP-Orchestrierung mit Google Antigravity</p>
     </header>
 
     <div class="status-banner">
@@ -303,7 +346,7 @@
         </div>
       </div>
       <div>
-        <button class="btn btn-secondary" onclick="checkStatus()">Aktualisieren</button>
+        <button class="btn btn-secondary" id="btn-refresh" onclick="checkStatus()">Aktualisieren</button>
       </div>
     </div>
 
@@ -311,24 +354,24 @@
     <div class="card" id="auth-card">
       <div class="card-title">
         <span class="step-badge" id="auth-step-badge">1</span>
-        <h3>Google Antigravity Authentifizierung</h3>
+        <h3 id="i18n-auth-title">Google Antigravity Authentifizierung</h3>
       </div>
       <div class="step-content">
         <!-- Section A: Pending Authentication -->
         <div id="auth-pending-section">
-          <p>Zero-G benötigt eine einmalige Autorisierung mit deinem Google-Konto. Klicke auf den Button unten, um dich direkt bei Google anzumelden:</p>
+          <p id="i18n-auth-pending-desc">Zero-G benötigt eine einmalige Autorisierung mit deinem Google-Konto. Klicke auf den Button unten, um dich direkt bei Google anzumelden:</p>
 
           <div style="margin: 16px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
             <a class="btn btn-primary" id="btn-auth-link" href="#" target="_blank" style="font-size: 15px; padding: 12px 22px; box-shadow: 0 4px 14px 0 rgba(3, 169, 244, 0.35);">
               🔗 Jetzt mit Google anmelden
             </a>
-            <button class="btn btn-secondary" onclick="goToConfig()">
+            <button class="btn btn-secondary" id="btn-addon-config" onclick="goToConfig()">
               ⚙️ Zur Add-on Konfiguration
             </button>
           </div>
 
           <div class="auth-banner-box">
-            <div style="font-size: 12px; color: var(--ha-text-muted); margin-bottom: 8px; font-weight: 600;">Oder Anmeldelink manuell öffnen / kopieren:</div>
+            <div id="i18n-auth-manual-title" style="font-size: 12px; color: var(--ha-text-muted); margin-bottom: 8px; font-weight: 600;">Oder Anmeldelink manuell öffnen / kopieren:</div>
             <div style="display: flex; gap: 8px;">
               <input type="text" class="auth-url-input" id="auth-url-input" readonly value="Lade personalisierten Anmeldelink...">
               <button class="btn btn-secondary" id="btn-copy-url" onclick="copyAuthUrl()" style="white-space: nowrap; padding: 8px 14px; font-size: 13px;">
@@ -338,11 +381,11 @@
           </div>
 
           <div style="margin-top: 16px; background-color: var(--ha-code-bg); border-radius: 8px; padding: 14px 18px; font-size: 13px; border-left: 3px solid var(--ha-primary);">
-            <strong>In 3 einfachen Schritten startklar:</strong>
+            <strong id="i18n-guide-title">In 3 einfachen Schritten startklar:</strong>
             <ol style="margin-left: 20px; margin-top: 8px; line-height: 1.7;">
-              <li>Klicke oben auf <strong>Jetzt mit Google anmelden</strong> und bestätige den Login bei Google.</li>
-              <li>Kopiere den angezeigten Autorisierungscode (beginnt mit <code>4/...</code>) oder die Weiterleitungs-URL.</li>
-              <li>Klicke auf <strong>Zur Add-on Konfiguration</strong>, trage den Code unter <code>auth_token</code> ein und klicke auf <strong>Speichern &amp; Neustarten</strong>.</li>
+              <li id="i18n-guide-s1">Klicke oben auf <strong>Jetzt mit Google anmelden</strong> und bestätige den Login bei Google.</li>
+              <li id="i18n-guide-s2">Kopiere den angezeigten Autorisierungscode (beginnt mit <code>4/...</code>) oder die Weiterleitungs-URL.</li>
+              <li id="i18n-guide-s3">Klicke auf <strong>Zur Add-on Konfiguration</strong>, trage den Code unter <code>auth_token</code> ein und klicke auf <strong>Speichern &amp; Neustarten</strong>.</li>
             </ol>
           </div>
         </div>
@@ -352,8 +395,8 @@
           <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 10px; background-color: rgba(16, 185, 129, 0.1); border: 1px solid var(--ha-success);">
             <div style="font-size: 28px;">✅</div>
             <div>
-              <h5 style="color: var(--ha-success); font-size: 15px; margin-bottom: 3px; font-weight: 600;">Erfolgreich mit Google verbunden</h5>
-              <p style="font-size: 13px; color: var(--ha-text-muted); margin: 0;">Die Google Antigravity Authentifizierung ist aktiv und dauerhaft im <code>/data</code>-Speicher gesichert.</p>
+              <h5 id="i18n-auth-active-title" style="color: var(--ha-success); font-size: 15px; margin-bottom: 3px; font-weight: 600;">Erfolgreich mit Google verbunden</h5>
+              <p id="i18n-auth-active-desc" style="font-size: 13px; color: var(--ha-text-muted); margin: 0;">Die Google Antigravity Authentifizierung ist aktiv und dauerhaft im <code>/data</code>-Speicher gesichert.</p>
             </div>
           </div>
         </div>
@@ -364,10 +407,10 @@
     <div class="card">
       <div class="card-title">
         <span class="step-badge" id="mcp-step-badge">2</span>
-        <h3>Home Assistant MCP Server <span class="tag" id="mcp-header-tag">Prüfe Status...</span></h3>
+        <h3><span id="i18n-mcp-title">Home Assistant MCP Server</span> <span class="tag" id="mcp-header-tag">Prüfe Status...</span></h3>
       </div>
       <div class="step-content">
-        <p style="margin-bottom: 16px;">
+        <p id="i18n-mcp-desc" style="margin-bottom: 16px;">
           Zero-G verbindet sich über das <strong>Model Context Protocol (MCP)</strong> mit Home Assistant, um Smart Home Geräte zu steuern und Konfigurationen zu bearbeiten. Folgende Integrationen werden unterstützt:
         </p>
 
@@ -375,17 +418,17 @@
           <!-- Card 1: Core MCP -->
           <div class="feature-item" id="card-mcp-core">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-              <h5 style="margin: 0;">⚡ 1. Core MCP Server</h5>
+              <h5 id="i18n-mcp-core-title" style="margin: 0;">⚡ 1. Core MCP Server</h5>
               <span class="tag" id="tag-mcp-core">Prüfe...</span>
             </div>
-            <p style="margin-bottom: 12px;">
+            <p id="i18n-mcp-core-desc" style="margin-bottom: 12px;">
               Offizielle Home Assistant Core-Integration für direkte Gerätesteuerung &amp; Assist-Intents (Lampen, Thermostate, Schalter, Skripte).
             </p>
             <div style="font-size: 11px; color: var(--ha-text-muted); margin-bottom: 12px; font-family: monospace;">
-              Endpunkt: <code>/api/mcp</code>
+              <span id="i18n-mcp-core-ep-label">Endpunkt:</span> <code>/api/mcp</code>
             </div>
             <div id="action-mcp-core">
-              <a class="btn btn-primary" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=mcp_server" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
+              <a class="btn btn-primary" id="btn-mcp-core" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=mcp_server" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
                 🔗 In Home Assistant einrichten
               </a>
             </div>
@@ -394,27 +437,27 @@
           <!-- Card 2: Community MCP -->
           <div class="feature-item" id="card-mcp-comm">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-              <h5 style="margin: 0;">🛠️ 2. Community MCP</h5>
+              <h5 id="i18n-mcp-comm-title" style="margin: 0;">🛠️ 2. Community MCP</h5>
               <span class="tag" id="tag-mcp-comm">Prüfe...</span>
             </div>
-            <p style="margin-bottom: 12px;">
+            <p id="i18n-mcp-comm-desc" style="margin-bottom: 12px;">
               Erweiterte Entwicklertools von <code>czechbol/hass-mcp</code> für YAML-Dateien, Lovelace-Dashboards, Backups und HACS.
             </p>
             <div style="font-size: 11px; color: var(--ha-text-muted); margin-bottom: 12px; font-family: monospace;">
-              Endpunkt: <code>/api/hass_mcp</code>
+              <span id="i18n-mcp-comm-ep-label">Endpunkt:</span> <code>/api/hass_mcp</code>
             </div>
             <div id="action-mcp-comm" style="display: flex; flex-direction: column; gap: 8px;">
-              <a class="btn btn-primary" href="https://my.home-assistant.io/redirect/hacs_repository/?owner=czechbol&repository=hass-mcp&category=integration" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
+              <a class="btn btn-primary" id="btn-mcp-comm-hacs" href="https://my.home-assistant.io/redirect/hacs_repository/?owner=czechbol&repository=hass-mcp&category=integration" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
                 📦 1. In HACS öffnen
               </a>
-              <a class="btn btn-secondary" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=hass_mcp" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
+              <a class="btn btn-secondary" id="btn-mcp-comm-cfg" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=hass_mcp" target="_blank" style="font-size: 13px; padding: 8px 14px; width: 100%;">
                 🔗 2. Integration hinzufügen
               </a>
             </div>
           </div>
         </div>
 
-        <div style="margin-top: 16px; font-size: 12px; color: var(--ha-text-muted);">
+        <div id="i18n-mcp-tip" style="margin-top: 16px; font-size: 12px; color: var(--ha-text-muted);">
           💡 <strong>Tipp:</strong> Wenn beide Integrationen aktiv sind, stehen Antigravity sowohl die offizielle Sprachsteuerung als auch alle System- und Dashboard-Werkzeuge parallel zur Verfügung.
         </div>
       </div>
@@ -424,22 +467,234 @@
     <div class="card">
       <div class="card-title">
         <span class="step-badge">3</span>
-        <h3>Webinterface aufrufen</h3>
+        <h3 id="i18n-step3-title">Webinterface aufrufen</h3>
       </div>
       <div class="step-content">
-        <p>Die Antigravity-Laufzeitumgebung läuft nun erfolgreich im Hintergrund deines Home Assistant!</p>
-        <p style="margin-top: 8px;">Um auf die KI-Entwicklungsumgebung zuzugreifen, nutze das offizielle Webinterface und verbinde dich über die <strong>Remote Control</strong> Funktion mit <code id="rc-name-code">homeassistant-zero-g</code>.</p>
+        <p id="i18n-step3-p1">Die Antigravity-Laufzeitumgebung läuft nun erfolgreich im Hintergrund deines Home Assistant!</p>
+        <p id="i18n-step3-p2" style="margin-top: 8px;">Um auf die KI-Entwicklungsumgebung zuzugreifen, nutze das offizielle Webinterface und verbinde dich über die <strong>Remote Control</strong> Funktion mit <code id="rc-name-code">homeassistant-zero-g</code>.</p>
         <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
-          <a class="btn btn-primary" href="https://antigravity.google/" target="_blank">🚀 Zero-G Webinterface öffnen</a>
-          <a class="btn btn-secondary" href="https://github.com/seppelw/zero-g" target="_blank">📖 Dokumentation & GitHub</a>
+          <a class="btn btn-primary" id="btn-launch-web" href="https://antigravity.google/" target="_blank">🚀 Zero-G Webinterface öffnen</a>
+          <a class="btn btn-secondary" id="btn-docs-github" href="https://github.com/seppelw/zero-g" target="_blank">📖 Dokumentation &amp; GitHub</a>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    let cachedAuthUrl = "";
-    let cachedRcName = "homeassistant-zero-g";
+    let currentLang = 'de';
+    let cachedAuthUrl = '';
+    let cachedRcName = 'homeassistant-zero-g';
+    let cachedStatusState = 'init';
+    let cachedMcpData = null;
+    let isUserAuthenticated = false;
+
+    const I18N = {
+      de: {
+        subtitle: "Schwerelose KI-Entwicklung & MCP-Orchestrierung mit Google Antigravity",
+        btn_refresh: "Aktualisieren",
+        status_init_title: "Dienst wird initialisiert...",
+        status_init_desc: "Warte auf Bereitstellung des Webinterfaces oder Erstanmeldung",
+        status_online_title: "Zero-G Laufzeitumgebung aktiv! (Online)",
+        status_online_desc: 'Online auf antigravity.google als "{rc}" · Bereit für Remote-Control Verbindungen.',
+        status_auth_title: "Google-Authentifizierung erforderlich",
+        status_auth_desc: "Bitte führe Schritt 1 aus (Google-Login über den Button oder Link).",
+        status_error_title: "Fehler bei der Verbindung",
+        status_error_desc: "Das Add-on oder der Nginx-Proxy ist noch nicht bereit.",
+        step1_title: "Google Antigravity Authentifizierung",
+        step1_pending_desc: "Zero-G benötigt eine einmalige Autorisierung mit deinem Google-Konto. Klicke auf den Button unten, um dich direkt bei Google anzumelden:",
+        btn_auth_google: "🔗 Jetzt mit Google anmelden",
+        btn_addon_config: "⚙️ Zur Add-on Konfiguration",
+        auth_manual_title: "Oder Anmeldelink manuell öffnen / kopieren:",
+        auth_loading: "Lade personalisierten Anmeldelink...",
+        btn_copy_link: "📋 Link kopieren",
+        btn_copied: "✓ Kopiert!",
+        guide_title: "In 3 einfachen Schritten startklar:",
+        guide_s1: "Klicke oben auf <strong>Jetzt mit Google anmelden</strong> und bestätige den Login bei Google.",
+        guide_s2: "Kopiere den angezeigten Autorisierungscode (beginnt mit <code>4/...</code>) oder die Weiterleitungs-URL.",
+        guide_s3: "Klicke auf <strong>Zur Add-on Konfiguration</strong>, trage den Code unter <code>auth_token</code> ein und klicke auf <strong>Speichern &amp; Neustarten</strong>.",
+        step1_active_title: "Erfolgreich mit Google verbunden",
+        step1_active_desc: "Die Google Antigravity Authentifizierung ist aktiv und dauerhaft im <code>/data</code>-Speicher gesichert.",
+        step2_title: "Home Assistant MCP Server",
+        step2_desc: "Zero-G verbindet sich über das <strong>Model Context Protocol (MCP)</strong> mit Home Assistant, um Smart Home Geräte zu steuern und Konfigurationen zu bearbeiten. Folgende Integrationen werden unterstützt:",
+        mcp_core_title: "⚡ 1. Core MCP Server",
+        mcp_core_desc: "Offizielle Home Assistant Core-Integration für direkte Gerätesteuerung &amp; Assist-Intents (Lampen, Thermostate, Schalter, Skripte).",
+        mcp_endpoint: "Endpunkt:",
+        btn_mcp_core_setup: "🔗 In Home Assistant einrichten",
+        mcp_active_badge: "✓ Aktiv und einsatzbereit",
+        mcp_comm_title: "🛠️ 2. Community MCP",
+        mcp_comm_desc: "Erweiterte Entwicklertools von <code>czechbol/hass-mcp</code> für YAML-Dateien, Lovelace-Dashboards, Backups und HACS.",
+        btn_mcp_comm_hacs: "📦 1. In HACS öffnen",
+        btn_mcp_comm_setup: "🔗 2. Integration hinzufügen",
+        mcp_tip: "💡 <strong>Tipp:</strong> Wenn beide Integrationen aktiv sind, stehen Antigravity sowohl die offizielle Sprachsteuerung als auch alle System- und Dashboard-Werkzeuge parallel zur Verfügung.",
+        tag_connected: "✓ Verbunden",
+        tag_missing: "Nicht eingerichtet",
+        tag_disabled: "Deaktiviert",
+        tag_auto: "Auto-Modus",
+        tag_optional: "Optional",
+        tag_both_active: "Beide aktiv",
+        tag_recommended: "Einrichtung empfohlen",
+        step3_title: "Webinterface aufrufen",
+        step3_desc1: "Die Antigravity-Laufzeitumgebung läuft nun erfolgreich im Hintergrund deines Home Assistant!",
+        step3_desc2: 'Um auf die KI-Entwicklungsumgebung zuzugreifen, nutze das offizielle Webinterface und verbinde dich über die <strong>Remote Control</strong> Funktion mit <code id="rc-name-code">{rc}</code>.',
+        btn_launch_web: "🚀 Zero-G Webinterface öffnen",
+        btn_docs_github: "📖 Dokumentation & GitHub"
+      },
+      en: {
+        subtitle: "Weightless AI development & MCP orchestration with Google Antigravity",
+        btn_refresh: "Refresh",
+        status_init_title: "Initializing service...",
+        status_init_desc: "Waiting for web interface or first-time authentication",
+        status_online_title: "Zero-G runtime active! (Online)",
+        status_online_desc: 'Online on antigravity.google as "{rc}" · Ready for Remote Control connections.',
+        status_auth_title: "Google Authentication Required",
+        status_auth_desc: "Please complete Step 1 (Google sign-in via button or link).",
+        status_error_title: "Connection Error",
+        status_error_desc: "The add-on or Nginx proxy is not ready yet.",
+        step1_title: "Google Antigravity Authentication",
+        step1_pending_desc: "Zero-G requires a one-time authorization with your Google account. Click the button below to sign in directly with Google:",
+        btn_auth_google: "🔗 Sign in with Google now",
+        btn_addon_config: "⚙️ Go to Add-on Configuration",
+        auth_manual_title: "Or open / copy sign-in link manually:",
+        auth_loading: "Loading personalized sign-in link...",
+        btn_copy_link: "📋 Copy link",
+        btn_copied: "✓ Copied!",
+        guide_title: "Ready in 3 simple steps:",
+        guide_s1: "Click <strong>Sign in with Google now</strong> above and confirm login with Google.",
+        guide_s2: "Copy the displayed authorization code (starts with <code>4/...</code>) or the redirect URL.",
+        guide_s3: "Click <strong>Go to Add-on Configuration</strong>, enter the code in <code>auth_token</code>, and click <strong>Save &amp; Restart</strong>.",
+        step1_active_title: "Successfully connected with Google",
+        step1_active_desc: "Google Antigravity authentication is active and persistently saved in <code>/data</code> storage.",
+        step2_title: "Home Assistant MCP Server",
+        step2_desc: "Zero-G connects via the <strong>Model Context Protocol (MCP)</strong> to Home Assistant to control smart home devices and edit configurations. The following integrations are supported:",
+        mcp_core_title: "⚡ 1. Core MCP Server",
+        mcp_core_desc: "Official Home Assistant Core integration for direct device control &amp; Assist intents (lights, thermostats, switches, scripts).",
+        mcp_endpoint: "Endpoint:",
+        btn_mcp_core_setup: "🔗 Set up in Home Assistant",
+        mcp_active_badge: "✓ Active and ready to use",
+        mcp_comm_title: "🛠️ 2. Community MCP",
+        mcp_comm_desc: "Advanced developer tools by <code>czechbol/hass-mcp</code> for YAML files, Lovelace dashboards, backups, and HACS.",
+        btn_mcp_comm_hacs: "📦 1. Open in HACS",
+        btn_mcp_comm_setup: "🔗 2. Add integration",
+        mcp_tip: "💡 <strong>Tip:</strong> When both integrations are active, Antigravity has access to both official voice intents and system/dashboard tools simultaneously.",
+        tag_connected: "✓ Connected",
+        tag_missing: "Not installed",
+        tag_disabled: "Disabled",
+        tag_auto: "Auto mode",
+        tag_optional: "Optional",
+        tag_both_active: "Both active",
+        tag_recommended: "Setup recommended",
+        step3_title: "Open Web Interface",
+        step3_desc1: "The Antigravity runtime is now running successfully in the background of your Home Assistant!",
+        step3_desc2: 'To access the AI development environment, use the official web interface and connect via the <strong>Remote Control</strong> feature to <code id="rc-name-code">{rc}</code>.',
+        btn_launch_web: "🚀 Open Zero-G Web Interface",
+        btn_docs_github: "📖 Documentation & GitHub"
+      }
+    };
+
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['en'] && I18N['en'][key]) || key;
+    }
+
+    function setLanguage(lang) {
+      currentLang = (lang === 'en') ? 'en' : 'de';
+      try {
+        localStorage.setItem('zero_g_lang', currentLang);
+      } catch (e) {}
+
+      document.documentElement.lang = currentLang;
+
+      const btnDe = document.getElementById('btn-lang-de');
+      const btnEn = document.getElementById('btn-lang-en');
+      if (btnDe) btnDe.classList.toggle('active', currentLang === 'de');
+      if (btnEn) btnEn.classList.toggle('active', currentLang === 'en');
+
+      applyStaticTranslations();
+      renderStatus();
+      if (cachedMcpData) {
+        updateMCPUI(cachedMcpData);
+      }
+    }
+
+    function applyStaticTranslations() {
+      const setTxt = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+      const setHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+
+      setTxt('i18n-subtitle', t('subtitle'));
+      setTxt('btn-refresh', t('btn_refresh'));
+      setTxt('i18n-auth-title', t('step1_title'));
+      setTxt('i18n-auth-pending-desc', t('step1_pending_desc'));
+      setTxt('btn-auth-link', t('btn_auth_google'));
+      setTxt('btn-addon-config', t('btn_addon_config'));
+      setTxt('i18n-auth-manual-title', t('auth_manual_title'));
+
+      const input = document.getElementById('auth-url-input');
+      if (input && (!cachedAuthUrl || input.value.startsWith('Lade') || input.value.startsWith('Loading'))) {
+        input.value = t('auth_loading');
+      }
+      setTxt('btn-copy-url', t('btn_copy_link'));
+      setTxt('i18n-guide-title', t('guide_title'));
+      setHtml('i18n-guide-s1', t('guide_s1'));
+      setHtml('i18n-guide-s2', t('guide_s2'));
+      setHtml('i18n-guide-s3', t('guide_s3'));
+
+      setTxt('i18n-auth-active-title', t('step1_active_title'));
+      setHtml('i18n-auth-active-desc', t('step1_active_desc'));
+
+      setTxt('i18n-mcp-title', t('step2_title'));
+      setHtml('i18n-mcp-desc', t('step2_desc'));
+      setTxt('i18n-mcp-core-title', t('mcp_core_title'));
+      setHtml('i18n-mcp-core-desc', t('mcp_core_desc'));
+      setTxt('i18n-mcp-core-ep-label', t('mcp_endpoint'));
+
+      const btnMcpCore = document.getElementById('btn-mcp-core');
+      if (btnMcpCore) btnMcpCore.innerText = t('btn_mcp_core_setup');
+
+      setTxt('i18n-mcp-comm-title', t('mcp_comm_title'));
+      setHtml('i18n-mcp-comm-desc', t('mcp_comm_desc'));
+      setTxt('i18n-mcp-comm-ep-label', t('mcp_endpoint'));
+
+      const btnHacs = document.getElementById('btn-mcp-comm-hacs');
+      if (btnHacs) btnHacs.innerText = t('btn_mcp_comm_hacs');
+      const btnCfg = document.getElementById('btn-mcp-comm-cfg');
+      if (btnCfg) btnCfg.innerText = t('btn_mcp_comm_setup');
+
+      setHtml('i18n-mcp-tip', t('mcp_tip'));
+
+      setTxt('i18n-step3-title', t('step3_title'));
+      setTxt('i18n-step3-p1', t('step3_desc1'));
+      setHtml('i18n-step3-p2', t('step3_desc2').replace('{rc}', cachedRcName));
+      setTxt('btn-launch-web', t('btn_launch_web'));
+      setTxt('btn-docs-github', t('btn_docs_github'));
+    }
+
+    function renderStatus() {
+      const dot = document.getElementById('status-dot');
+      const title = document.getElementById('status-title');
+      const desc = document.getElementById('status-desc');
+      if (!dot || !title || !desc) return;
+
+      if (cachedStatusState === 'online') {
+        dot.style.backgroundColor = 'var(--ha-success)';
+        dot.style.animation = 'none';
+        title.innerText = t('status_online_title');
+        desc.innerText = t('status_online_desc').replace('{rc}', cachedRcName);
+      } else if (cachedStatusState === 'auth_needed') {
+        dot.style.backgroundColor = 'var(--ha-warning)';
+        dot.style.animation = 'pulse 2s infinite';
+        title.innerText = t('status_auth_title');
+        desc.innerText = t('status_auth_desc');
+      } else if (cachedStatusState === 'error') {
+        dot.style.backgroundColor = 'var(--ha-error)';
+        dot.style.animation = 'none';
+        title.innerText = t('status_error_title');
+        desc.innerText = t('status_error_desc');
+      } else {
+        dot.style.backgroundColor = 'var(--ha-warning)';
+        dot.style.animation = 'pulse 2s infinite';
+        title.innerText = t('status_init_title');
+        desc.innerText = t('status_init_desc');
+      }
+    }
 
     async function checkStatus() {
       const base = window.location.pathname.replace(/\/onboarding\/?$/, '');
@@ -463,11 +718,8 @@
             if (authInput) authInput.value = authData.auth_url;
           }
 
-          if (authData.authenticated) {
-            setAuthUIState(true);
-          } else {
-            setAuthUIState(false);
-          }
+          isUserAuthenticated = Boolean(authData.authenticated);
+          setAuthUIState(isUserAuthenticated);
         }
       } catch (e) {
         // Continue to MCP check
@@ -477,8 +729,8 @@
       try {
         const mcpRes = await fetch(base + '/mcp_info.json?t=' + Date.now());
         if (mcpRes.ok) {
-          const mcpData = await mcpRes.json();
-          updateMCPUI(mcpData);
+          cachedMcpData = await mcpRes.json();
+          updateMCPUI(cachedMcpData);
         }
       } catch (e) {
         // Continue to health check
@@ -488,24 +740,17 @@
       try {
         const res = await fetch(base + '/_health?t=' + Date.now());
         if (res.ok) {
-          document.getElementById('status-dot').style.backgroundColor = 'var(--ha-success)';
-          document.getElementById('status-dot').style.animation = 'none';
-          document.getElementById('status-title').innerText = 'Zero-G Laufzeitumgebung aktiv! (Online)';
-          document.getElementById('status-desc').innerText = 'Online auf antigravity.google als "' + cachedRcName + '" · Bereit für Remote-Control Verbindungen.';
+          cachedStatusState = 'online';
           setAuthUIState(true);
-          return true;
         } else {
-          document.getElementById('status-dot').style.backgroundColor = 'var(--ha-warning)';
-          document.getElementById('status-dot').style.animation = 'pulse 2s infinite';
-          document.getElementById('status-title').innerText = 'Google-Authentifizierung erforderlich';
-          document.getElementById('status-desc').innerText = 'Bitte führe Schritt 1 aus (Google-Login über den Button oder Link).';
+          cachedStatusState = 'auth_needed';
         }
       } catch (e) {
-        document.getElementById('status-dot').style.backgroundColor = 'var(--ha-error)';
-        document.getElementById('status-title').innerText = 'Fehler bei der Verbindung';
-        document.getElementById('status-desc').innerText = 'Das Add-on oder der Nginx-Proxy ist noch nicht bereit.';
+        cachedStatusState = 'error';
       }
-      return false;
+
+      renderStatus();
+      return cachedStatusState === 'online';
     }
 
     function setAuthUIState(isAuthenticated) {
@@ -545,28 +790,28 @@
       if (data.core_status === 'active') {
         hasActive = true;
         if (coreTag) {
-          coreTag.innerText = '✓ Verbunden';
+          coreTag.innerText = t('tag_connected');
           coreTag.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
           coreTag.style.color = 'var(--ha-success)';
         }
         if (coreAction) {
-          coreAction.innerHTML = '<div style="color: var(--ha-success); font-weight: 600; font-size: 13px; padding: 6px 0;">✓ Aktiv und einsatzbereit</div>';
+          coreAction.innerHTML = '<div style="color: var(--ha-success); font-weight: 600; font-size: 13px; padding: 6px 0;">' + t('mcp_active_badge') + '</div>';
         }
       } else if (data.core_status === 'missing') {
         if (coreTag) {
-          coreTag.innerText = 'Nicht eingerichtet';
+          coreTag.innerText = t('tag_missing');
           coreTag.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
           coreTag.style.color = 'var(--ha-warning)';
         }
       } else if (data.core_status === 'disabled') {
         if (coreTag) {
-          coreTag.innerText = 'Deaktiviert';
+          coreTag.innerText = t('tag_disabled');
           coreTag.style.backgroundColor = 'rgba(148, 163, 184, 0.2)';
           coreTag.style.color = 'var(--ha-text-muted)';
         }
       } else {
         if (coreTag) {
-          coreTag.innerText = 'Auto-Modus';
+          coreTag.innerText = t('tag_auto');
           coreTag.style.backgroundColor = 'rgba(3, 169, 244, 0.2)';
           coreTag.style.color = 'var(--ha-primary)';
         }
@@ -576,28 +821,28 @@
       if (data.community_status === 'active') {
         hasActive = true;
         if (commTag) {
-          commTag.innerText = '✓ Verbunden';
+          commTag.innerText = t('tag_connected');
           commTag.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
           commTag.style.color = 'var(--ha-success)';
         }
         if (commAction) {
-          commAction.innerHTML = '<div style="color: var(--ha-success); font-weight: 600; font-size: 13px; padding: 6px 0;">✓ Aktiv und einsatzbereit</div>';
+          commAction.innerHTML = '<div style="color: var(--ha-success); font-weight: 600; font-size: 13px; padding: 6px 0;">' + t('mcp_active_badge') + '</div>';
         }
       } else if (data.community_status === 'missing') {
         if (commTag) {
-          commTag.innerText = 'Nicht eingerichtet';
+          commTag.innerText = t('tag_missing');
           commTag.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
           commTag.style.color = 'var(--ha-warning)';
         }
       } else if (data.community_status === 'disabled') {
         if (commTag) {
-          commTag.innerText = 'Deaktiviert';
+          commTag.innerText = t('tag_disabled');
           commTag.style.backgroundColor = 'rgba(148, 163, 184, 0.2)';
           commTag.style.color = 'var(--ha-text-muted)';
         }
       } else {
         if (commTag) {
-          commTag.innerText = 'Optional';
+          commTag.innerText = t('tag_optional');
           commTag.style.backgroundColor = 'rgba(148, 163, 184, 0.2)';
           commTag.style.color = 'var(--ha-text-muted)';
         }
@@ -606,15 +851,15 @@
       // Header Tag & Step Badge
       if (headerTag) {
         if (data.core_status === 'active' && data.community_status === 'active') {
-          headerTag.innerText = 'Beide aktiv';
+          headerTag.innerText = t('tag_both_active');
           headerTag.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
           headerTag.style.color = 'var(--ha-success)';
         } else if (hasActive) {
-          headerTag.innerText = 'Verbunden';
+          headerTag.innerText = t('tag_connected');
           headerTag.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
           headerTag.style.color = 'var(--ha-success)';
         } else if (data.core_status === 'missing' || data.community_status === 'missing') {
-          headerTag.innerText = 'Einrichtung empfohlen';
+          headerTag.innerText = t('tag_recommended');
           headerTag.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
           headerTag.style.color = 'var(--ha-warning)';
         }
@@ -628,13 +873,13 @@
 
     function copyAuthUrl() {
       const input = document.getElementById('auth-url-input');
-      const textToCopy = (input && input.value && !input.value.startsWith('Lade')) ? input.value : cachedAuthUrl;
+      const textToCopy = (input && input.value && !input.value.startsWith('Lade') && !input.value.startsWith('Loading')) ? input.value : cachedAuthUrl;
       if (textToCopy) {
         navigator.clipboard.writeText(textToCopy).then(() => {
           const btn = document.getElementById('btn-copy-url');
           if (btn) {
-            btn.innerText = '✓ Kopiert!';
-            setTimeout(() => { btn.innerText = '📋 Link kopieren'; }, 2500);
+            btn.innerText = t('btn_copied');
+            setTimeout(() => { btn.innerText = t('btn_copy_link'); }, 2500);
           }
         }).catch(() => {
           if (input) {
@@ -654,6 +899,19 @@
       } catch (e) {}
       window.location.href = '/hassio/addon/zero-g/config';
     }
+
+    // Initialize Language from localStorage or Browser locale
+    let initialLang = 'de';
+    try {
+      const savedLang = localStorage.getItem('zero_g_lang');
+      if (savedLang) {
+        initialLang = savedLang;
+      } else if (navigator.language && !navigator.language.startsWith('de')) {
+        initialLang = 'en';
+      }
+    } catch (e) {}
+
+    setLanguage(initialLang);
 
     // Poll every 5 seconds
     setInterval(checkStatus, 5000);

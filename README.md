@@ -1,99 +1,106 @@
-# 🛸 Zero-G: Antigravity Assistant für Home Assistant
+# 🛸 Zero-G: Autonomous AI Assistant & MCP Orchestrator for Home Assistant
+
+[🇬🇧 English](README.md) | [🇩🇪 Deutsch](README.de.md)
 
 [![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fseppelw%2Fzero-g)
-![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20aarch64-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Ingress%20Ready-41BDF5?logo=home-assistant)
+[![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20aarch64-blue)](https://github.com/seppelw/zero-g)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Ingress%20Ready-41BDF5?logo=home-assistant)](https://github.com/seppelw/zero-g)
+[![Model Context Protocol](https://img.shields.io/badge/MCP-Dual%20Orchestration-8A2BE2)](https://github.com/seppelw/zero-g)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**Zero-G** bringt die autonome Entwicklungs- und Steuerungsplattform **Google Antigravity** direkt in dein Home Assistant. Mit nativer Ingress-Einbindung steht dir das vollständige Webinterface direkt in deiner Seitenleiste zur Verfügung – **ohne externe Portfreigaben**.
-
-Zusätzlich konfiguriert Zero-G automatisch den **Home Assistant MCP Server (Model Context Protocol)** vor, sodass die KI sofort deine Entitäten steuern, Automationen analysieren und Konfigurationsdateien unter `/config` direkt bearbeiten kann.
-
----
-
-## 💻 Systemanforderungen (WICHTIG für Proxmox/VM-Nutzer)
-
-Dieses Add-on lädt das offiziell kompilierte **Antigravity Binary** von Google herunter. Dieses Binary ist hochoptimiert und erfordert zwingend einen Prozessor, der den Befehlssatz **PCLMULQDQ (PCLMUL)** unterstützt. 
-
-- **Bare-Metal (Echte Hardware)**: Jeder halbwegs moderne Prozessor (ab Intel Westmere / AMD Bulldozer, ca. 2011) unterstützt diesen Befehlssatz.
-- **Virtuelle Maschinen (Proxmox, ESXi, UNRAID)**: ⚠️ Wenn Home Assistant in einer virtuellen Maschine läuft, ist der CPU-Typ in den Einstellungen der VM oft standardmäßig auf Kompatibilität ausgelegt (z.B. `kvm64` oder `qemu64`). Diese simulierten CPUs verstecken moderne Befehlssätze! 
-  - **Die Lösung**: Stelle in Proxmox (oder deinem Hypervisor) den CPU-Typ der Home Assistant VM von `kvm64`/`qemu64` zwingend auf **`host`** um und fahre die VM einmal komplett herunter (Shutdown) und wieder hoch. Andernfalls verweigert das Add-on mit einem Hardware-Kompatibilitätsfehler den Start.
+> **Zero-G** seamlessly integrates **Google Antigravity** — Google's cutting-edge autonomous AI coding and execution platform — directly into Home Assistant. With native Ingress integration, intuitive onboarding, and automated **Dual Model Context Protocol (MCP)** server discovery, Zero-G turns your smart home into an intelligent, AI-driven automation hub without any port forwarding.
 
 ---
 
-## ✨ Features
+## 🚀 Key Features
 
-- 🚀 **Automatischer Download & Updates**: Lädt beim Start automatisch das neueste offizielle Release von Google herunter (inklusive SHA512-Prüfung). Unterstützt **`amd64` (x86_64)** und **`aarch64` (Raspberry Pi 4/5, HA Green/Yellow)**.
-- 🌐 **Nahtlose Ingress-Integration**: Direkt in die Home Assistant Seitenleiste integriert über einen internen Nginx-Proxy mit WebSocket-Unterstützung und dynamischem Pfad-Rewriting.
-- 🔌 **Home Assistant MCP Server Integration**:
-  - **Zero-Config Auto-Modus**: Nutzt direkt die Home Assistant Supervisor API (`http://supervisor/core/api/mcp`) und den Supervisor-Token.
-  - **Manueller Modus**: Option für benutzerdefinierte URLs und Long-Lived Access Tokens (LLAT).
-  - **History-Endpunkt**: Optionale Einbindung von `hass_mcp` für Statistiken und Verläufe.
-- 🧙‍♂️ **Geführtes Onboarding**: Visuelle Onboarding-Seite im Ingress-Interface und klare Ausgabe der Google-Anmelde-URL in den Add-on Logs.
-- 💾 **Dauerhafte Persistenz**: Tokens, Arbeitsbereiche (`/data/workspace`), Konversationen und MCP-Konfigurationen bleiben im persistenten `/data`-Volume dauerhaft erhalten.
-- 🛠️ **Direkter Zugriff auf HA-Dateien**: `/config` (Automatisierungen, Scripts, `configuration.yaml`, Dashboards), `/share` und `/addons` sind direkt im Container eingehängt.
+- 🌐 **Seamless Home Assistant Ingress**: Access the Zero-G status dashboard directly from your Home Assistant sidebar without opening external ports.
+- 🔌 **Automated Dual MCP Server Orchestration**:
+  - **Core MCP Server (`mcp_server`, `/api/mcp`)**: Real-time entity control via Home Assistant's native Assist pipeline (lights, switches, climate, vacuums, scripts, and scenes).
+  - **Community MCP Server ([`czechbol/hass-mcp`](https://github.com/czechbol/hass-mcp), `/api/hass_mcp`)**: Deep management tools for Lovelace dashboards, YAML configuration files, HACS packages, and backups.
+  - **Smart Live Probe**: Zero-G probes both endpoints on boot. If any integration is missing, it creates a persistent notification with **My Home Assistant 1-click setup buttons**.
+  - **Auto-Dual-Mounting**: When community MCP is detected, it is mounted alongside Core MCP automatically without manual configuration.
+- 🔄 **Self-Updating Engine**: Automatically checks for new Google Antigravity releases on startup and updates the CLI binary securely (verified via SHA-512). Supports **`amd64` (x86_64)** and **`aarch64` (Raspberry Pi 4/5, Home Assistant Green & Yellow)**.
+- 🔐 **Frictionless Google OAuth**: Single-click Google login directly from the Ingress interface or Home Assistant notification drawer, with persistent PKCE state across restarts.
+- 📁 **Direct Access to HA Storage**: Direct read/write access to `/config` (`configuration.yaml`, automations, blueprints), `/share`, and `/addons`.
+- 💾 **State Persistence**: Tokens, workspaces (`/data/workspace`), conversation state, and custom tool definitions remain safely preserved in persistent storage across updates.
+
+---
+
+## 💻 Hardware Requirements (Important for Proxmox & VM Users)
+
+Zero-G runs the official Google Antigravity binary, which requires modern CPU instructions (**PCLMULQDQ / PCLMUL**):
+
+- **Bare-Metal Hardware**: Supported on virtually all CPUs from ~2011 onwards (Intel Westmere / AMD Bulldozer and newer), as well as 64-bit ARM (Raspberry Pi 4/5).
+- **Virtual Machines (Proxmox VE, ESXi, UNRAID, VirtualBox)**: ⚠️ If your Home Assistant OS runs in a virtual machine, default virtualized CPU types (like `kvm64` or `qemu64`) hide modern CPU instruction flags!
+  - **Fix**: In your hypervisor (e.g. Proxmox), open your HA VM settings and change the **CPU Type** to **`host`**. Then perform a complete shutdown and restart of the VM.
 
 ---
 
 ## 📦 Installation
 
-### Option 1: 1-Klick-Installation (Empfohlen)
+### Option 1: 1-Click Installation (Recommended)
 
-Klicke auf den folgenden Button, um das Repository direkt zu deinem Home Assistant hinzuzufügen:
+Click the badge below to add the repository directly to your Home Assistant instance:
 
 [![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fseppelw%2Fzero-g)
 
-### Option 2: Manuell hinzufügen
+### Option 2: Manual Installation
 
-1. Gehe in Home Assistant zu **Einstellungen** -> **Add-ons** -> **Add-on Store**.
-2. Klicke oben rechts auf das Drei-Punkte-Menü (⋮) und wähle **Repositories**.
-3. Füge folgende Repository-URL ein:
+1. In Home Assistant, navigate to **Settings** → **Add-ons** → **Add-on Store**.
+2. Click the three-dots menu (⋮) in the top-right corner and select **Repositories**.
+3. Add the following repository URL:
    ```text
    https://github.com/seppelw/zero-g
    ```
-4. Klicke auf **Hinzufügen** und schließe den Dialog.
-5. Das Add-on **Zero-G** erscheint nun im Add-on Store. Klicke darauf und wähle **Installieren**.
+4. Click **Add** and close the modal.
+5. Select **Zero-G** from the Add-on Store list and click **Install**.
 
 ---
 
-## 🎯 Onboarding & Ersteinrichtung
+## 🎯 Onboarding & Quickstart
 
 ```mermaid
 flowchart TD
-    A[1. Add-on 'Zero-G' installieren] --> B[2. 'In Seitenleiste anzeigen' aktivieren]
-    B --> C[3. Add-on starten]
-    C --> D{Bereits angemeldet?}
-    D -- Nein --> E[Google Authentifizierung]
-    E --> F1[Option A: Anmeldelink im Add-on Log öffnen]
-    E --> F2[Option B: Token in Add-on Optionen eintragen]
-    F1 --> G[Token wird in /data gespeichert]
+    A[1. Install Zero-G Add-on] --> B[2. Enable 'Show in sidebar']
+    B --> C[3. Click Start]
+    C --> D{Already Authenticated?}
+    D -- No --> E[Google Authentication]
+    E --> F1[1-Click Login in Ingress UI]
+    E --> F2[Click HA Notification Link]
+    F1 --> G[Paste code into auth_token & save]
     F2 --> G
-    G --> H[Home Assistant MCP Server automatisch initialisiert]
-    D -- Ja --> H
-    H --> I[Zero-G Web UI öffnet sich in der Seitenleiste]
+    G --> H[Automated MCP Health Check]
+    D -- Yes --> H
+    H --> I{MCP Integration Missing?}
+    I -- Yes --> J[Use My Home Assistant buttons in Notification]
+    I -- No --> K[Connect via antigravity.google Remote Control]
 ```
 
-### Erste Schritte
+### Steps:
 
-1. Nach der Installation klicke auf **Start**.
-2. Klicke auf **Web UI öffnen** (oder den Seitenleisten-Button), um das Zero-G Dashboard zu öffnen.
-3. Im Dashboard findest du im ersten Schritt Anweisungen zur **einmaligen Google-Authentifizierung**.
-4. Sobald das Add-on authentifiziert ist, zeigt das Dashboard den Status "Aktiv" an.
-5. **Wichtig:** Das Add-on selbst dient als *Hintergrund-Laufzeitumgebung*. Um die KI-Entwicklungsumgebung zu öffnen, klicke im Dashboard auf den blauen Button **🚀 Zero-G Webinterface öffnen** (oder navigiere direkt zu [https://antigravity.google/](https://antigravity.google/)).
-6. Wähle dort deine `homeassistant-zero-g` Remote Control Instanz aus und klicke auf **Connect**.
-
-> **Pro-Tipp:** Zero-G kann dein gesamtes Smart Home steuern und konfigurieren! Versuche im Chat Befehle wie _"Mach das Licht im Wohnzimmer an"_, _"Erstelle eine Lovelace Karte für meine Heizungen"_ oder _"Schreibe eine Automation, die mich benachrichtigt, wenn die Waschmaschine fertig ist"_. Sobald du das Webinterface in der Seitenleiste öffnest, stehen dir unter anderem folgende Tools zur Verfügung:
-- `homeassistant__GetLiveContext`
-- `intent__HassTurnOn` / `intent__HassTurnOff`
-- `climate__HassClimateSetTemperature`
-- `vacuum__HassVacuumStart`
-- Und viele weitere Steuerungs- und Analysebefehle!
+1. Click **Start** on the Add-on page and enable **Show in sidebar**.
+2. Open the **Zero-G** dashboard from the sidebar.
+3. Click **🔗 Sign in with Google**, approve permissions, and copy your authorization code.
+4. Click **⚙️ Add-on Configuration**, paste the code into `auth_token`, and click **Save & Restart**.
+5. Once connected, open [https://antigravity.google/](https://antigravity.google/) and connect to your remote instance (default: `homeassistant-zero-g`).
 
 ---
 
-## ⚙️ Konfiguration
+## 🔌 Model Context Protocol (MCP) Setup
 
-Die Einstellungen können direkt im Add-on Reiter **Konfiguration** angepasst werden:
+Zero-G automatically configures MCP so your AI assistant can interact with your smart home:
+
+| Integration | Purpose | How to Add |
+|---|---|---|
+| **Core MCP Server** (`mcp_server`) | Control lights, climate, switches, covers, scripts, and Assist intents | [![Add Core MCP](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=mcp_server) |
+| **Community MCP Server** ([`czechbol/hass-mcp`](https://github.com/czechbol/hass-mcp)) | Full system tools: edit Lovelace dashboards, manage YAML files, audit configurations | [![Open HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=czechbol&repository=hass-mcp&category=integration) |
+
+---
+
+## ⚙️ Configuration Options
+
+Configure Zero-G directly in the Home Assistant Add-on **Configuration** tab:
 
 ```yaml
 auto_update: true
@@ -108,47 +115,45 @@ auth_token: ""
 log_level: "info"
 ```
 
-### Konfigurationsoptionen im Detail:
-
-| Schlüssel | Typ | Standard | Beschreibung |
+| Option | Type | Default | Description |
 |---|---|---|---|
-| `auto_update` | bool | `true` | Sucht bei jedem Start nach neueren Versionen im Google Release Manifest und aktualisiert die CLI automatisch. |
-| `remote_control_name` | str | `"homeassistant-zero-g"` | Instanzname im Antigravity-Netzwerk. |
-| `ha_mcp_enabled` | bool | `true` | Aktiviert die automatische Einbindung des Home Assistant MCP Servers. |
-| `ha_mcp_mode` | str | `"auto"` | `auto`: Nutzt den internen Supervisor-Token.<br>`manual`: Nutzt benutzerdefinierte URL und Token. |
-| `ha_mcp_url` | url? | `""` | Optionaler MCP-Endpunkt (bei leer: `http://supervisor/core/api/mcp`). |
-| `ha_mcp_token` | password | `""` | Optionaler Long-Lived Access Token für den manuellen Modus. |
-| `ha_mcp_history_enabled` | bool | `false` | Aktiviert den Verlauf- und Statistik-MCP-Server (`hass_mcp`). |
-| `ha_mcp_history_url` | url? | `""` | Optionaler History MCP Endpunkt (bei leer: `http://supervisor/core/api/hass_mcp`). |
-| `auth_token` | password | `""` | Optionales Google OAuth Token zur direkten Authentifizierung. |
-| `log_level` | str | `"info"` | Protokollierungsdetail: `trace`, `debug`, `info`, `warning`, `error`. |
+| `auto_update` | bool | `true` | Checks for and downloads the latest official Google Antigravity release on startup. |
+| `remote_control_name` | str | `"homeassistant-zero-g"` | Custom instance name displayed on `antigravity.google`. |
+| `ha_mcp_enabled` | bool | `true` | Enables automated Model Context Protocol orchestration. |
+| `ha_mcp_mode` | str | `"auto"` | `auto`: Uses internal Supervisor token.<br>`manual`: Uses custom endpoint and LLAT token. |
+| `ha_mcp_url` | url? | `""` | Custom Core MCP endpoint (default: `http://supervisor/core/api/mcp`). |
+| `ha_mcp_token` | password | `""` | Long-Lived Access Token for manual mode. |
+| `ha_mcp_history_enabled` | bool | `false` | Enables community MCP server (`czechbol/hass-mcp`). |
+| `ha_mcp_history_url` | url? | `""` | Custom Community MCP endpoint (default: `http://supervisor/core/api/hass_mcp`). |
+| `auth_token` | password | `""` | Google OAuth Authorization Code or raw token. |
+| `log_level` | str | `"info"` | Logging verbosity (`trace`, `debug`, `info`, `warning`, `error`). |
 
 ---
 
-## 🏗️ Architektur
+## 🏗️ Architecture
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ Home Assistant Core & Frontend                         │
+│ Home Assistant Core & Supervisor                       │
 │  ├─ Sidebar Ingress Link: /api/hassio_ingress/<token>  │
-│  └─ Supervisor API Endpoint: http://supervisor/core    │
+│  ├─ Core MCP API: http://supervisor/core/api/mcp       │
+│  └─ Community MCP API: http://supervisor/core/api/hass_mcp │
 └──────────────────────────┬─────────────────────────────┘
-                           │ Ingress Port 8099
+                           │ Port 8099 (Ingress)
 ┌──────────────────────────▼─────────────────────────────┐
 │ Zero-G Add-on Container                                │
 │                                                        │
 │  ┌──────────────────────────────────────────────────┐  │
 │  │ Nginx Reverse Proxy (Port 8099)                  │  │
-│  │  - X-Ingress-Path path rewriting                 │  │
-│  │  - WebSocket streaming (Upgrade / Connection)    │  │
-│  │  - Health polling & Onboarding fallback UI       │  │
+│  │  - Ingress WebSocket & Path Rewriting            │  │
+│  │  - Dynamic /auth_info.json & /mcp_info.json APIs │  │
+│  │  - Multilingual Onboarding UI (EN/DE)            │  │
 │  └──────────────────────┬───────────────────────────┘  │
 │                         │ localhost:4400               │
 │  ┌──────────────────────▼───────────────────────────┐  │
 │  │ Antigravity Engine (agy --remote-control)        │  │
-│  │  - React / Vite Web Interface                    │  │
-│  │  - Autonomous Agent Core                         │  │
-│  │  - Model Context Protocol Client (MCP)           │  │
+│  │  - Autonomous AI Coding Agent                    │  │
+│  │  - Dual MCP Client (Core + Community)            │  │
 │  └──────────┬───────────────────────────┬───────────┘  │
 │             │                           │              │
 │             ▼                           ▼              │
@@ -156,21 +161,19 @@ log_level: "info"
 │  │ Persistent Storage   │  │ Home Assistant Storage │  │
 │  │ (/data/.gemini)      │  │ (/config, /share)      │  │
 │  │  - mcp_config.json   │  │  - configuration.yaml  │  │
-│  │  - OAuth tokens      │  │  - automations.yaml    │  │
-│  │  - workspace files   │  │  - blueprints, scripts │  │
+│  │  - OAuth session     │  │  - automations.yaml    │  │
+│  │  - workspace files   │  │  - lovelace dashboards │  │
 │  └──────────────────────┘  └────────────────────────┘  │
 └────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛡️ Lizenz & Rechtliche Hinweise
+## 🛡️ License & Legal Notices
 
-Dieses Projekt ist unter der **MIT-Lizenz** lizenziert – siehe [LICENSE](LICENSE) für Details.
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for details.
 
-### Drittanbieter-Software & Markenhinweis
-- Dieses Repository enthält ausschließlich quelloffene Wrapper-Skripte, Containerdefinitionen und Integrationscode für Home Assistant.
-- Die eigentliche **Google Antigravity Software** (`agy`) wird **nicht** in diesem Repository gehostet oder weiterverbreitet. Sie wird zur Laufzeit vom Endanwender direkt von den offiziellen Google-Servern heruntergeladen und unterliegt den jeweiligen Google Nutzungsbedingungen (Terms of Service).
-- *Google* und *Antigravity* sind Marken der Google LLC. Dieses Projekt ist eine unabhängige Community-Entwicklung und steht in keiner geschäftlichen Verbindung zu Google LLC.
-
-- **Fragen oder Feature-Wünsche?** Erstelle gerne ein Issue im [GitHub Repository](https://github.com/seppelw/zero-g/issues).
+### Third-Party Software & Trademark Notice
+- This repository contains open-source container wrapper scripts, configuration schemas, and Home Assistant integration logic.
+- The **Google Antigravity** binary (`agy`) is **not** hosted or redistributed by this repository. It is downloaded by the end user directly from official Google servers at runtime and is subject to Google's Terms of Service.
+- *Google* and *Antigravity* are trademarks of Google LLC. This project is an independent community add-on and is not affiliated with, sponsored by, or endorsed by Google LLC.

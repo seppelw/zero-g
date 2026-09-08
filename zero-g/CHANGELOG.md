@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.8
+
+- 🌐 **Neu (Mehrsprachigkeit & Internationalisierung)**:
+  - **Englische Flaggschiff-README & SEO**: Vollständige englische Dokumentation (`README.md`) mit SEO-Optimierung (Top-Suchbegriffe wie Google Antigravity, Model Context Protocol MCP, Home Assistant Add-on, czechbol/hass-mcp), Architektur-Diagrammen und Hardware-Anforderungen. Deutsche Dokumentation nahtlos unter `README.de.md` verfügbar.
+  - **Native Home Assistant Übersetzungen**: Unterstützung für deutsche (`translations/de.yaml`) und englische (`translations/en.yaml`) Bezeichnungen und Beschreibungen aller Konfigurationsoptionen in der Home Assistant Benutzeroberfläche.
+  - **Interaktiver Sprachumschalter im Ingress-Dashboard**: Das Onboarding- und Status-Dashboard bietet nun einen direkten Umschalter zwischen Deutsch und Englisch (`🇩🇪 Deutsch | 🇬🇧 English`) mit automatischer Browser-Spracherkennung und lokaler Speicherung der Sprachwahl.
+  - **Bilinguale Add-on Dokumentation**: `DOCS.md` enthält nun sowohl die englische als auch die deutsche Dokumentation mit Direkt-Sprungmarken.
+
 ## 1.1.7
 
 - 🐛 **Fix**: Dynamischer Instanzname im Web-Dashboard: Der konfigurierte Remote-Control-Instanzname (`remote_control_name`, z. B. `homeassistant-zero-g_dev`) wird nun dynamisch in die Statusanzeige und Anleitung des Ingress-Dashboards übernommen, anstatt statisch `homeassistant-zero-g` anzuzeigen.

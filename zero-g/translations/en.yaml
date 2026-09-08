@@ -1,0 +1,31 @@
+configuration:
+  auto_update:
+    name: "Automatic Updates"
+    description: "Automatically check and download the latest Google Antigravity CLI version on container startup."
+  remote_control_name:
+    name: "Remote Control Name"
+    description: "The name of this instance displayed in the Antigravity web interface (antigravity.google)."
+  ha_mcp_enabled:
+    name: "Enable Home Assistant MCP"
+    description: "Automatically connect Home Assistant via the Model Context Protocol (MCP) to allow entity control and AI automations."
+  ha_mcp_mode:
+    name: "MCP Connection Mode"
+    description: "Connection mode: 'auto' uses the internal Supervisor network and token. 'manual' uses custom URL and token."
+  ha_mcp_url:
+    name: "Custom MCP URL"
+    description: "Custom MCP endpoint URL (leave blank for default: http://supervisor/core/api/mcp)."
+  ha_mcp_token:
+    name: "Custom Long-Lived Token"
+    description: "Long-Lived Access Token for manual MCP mode."
+  ha_mcp_history_enabled:
+    name: "Enable Community MCP / History"
+    description: "Enable the secondary community MCP server endpoint (czechbol/hass-mcp) for full administrative tools and dashboards."
+  ha_mcp_history_url:
+    name: "Community MCP URL"
+    description: "Custom Community MCP URL (leave blank for default: http://supervisor/core/api/hass_mcp)."
+  auth_token:
+    name: "Google Authorization Code / Token"
+    description: "Paste your Google OAuth code (starting with 4/...) or token to complete authentication."
+  log_level:
+    name: "Log Level"
+    description: "Logging verbosity level."
