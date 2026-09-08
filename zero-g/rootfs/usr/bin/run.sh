@@ -97,57 +97,7 @@ ln -sf  "$AGY_BIN"          /root/.local/bin/agy
 ln -sf  "$AGY_BIN"          /usr/local/bin/agy
 
 # ------------------------------------------------------------------------------
-# 3. Authentication Configuration
-# ------------------------------------------------------------------------------
-AUTH_TOKEN="$(bashio::config 'auth_token' || true)"
-if [[ -z "$AUTH_TOKEN" ]] || [[ "$AUTH_TOKEN" == "null" ]]; then
-    if [[ -f /data/options.json ]]; then
-        AUTH_TOKEN="$(jq -r '.auth_token // empty' /data/options.json)"
-    fi
-fi
-
-TOKEN_FILE="${GEMINI_DIR}/jetski-standalone-oauth-token"
-
-if [[ -n "${AUTH_TOKEN:-}" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
-    bashio::log.info "Processing OAuth token from Add-on options..."
-    if [[ "$AUTH_TOKEN" == "{"* ]]; then
-        # User supplied raw JSON token object
-        printf '%s\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
-        chmod 600 "$TOKEN_FILE"
-    elif [[ "$AUTH_TOKEN" == "4/"* ]]; then
-        # User supplied an Authorization Code
-        bashio::log.info "Found Google Authorization Code. Exchanging for access token..."
-        if /usr/bin/agy-auth.sh exchange "$AUTH_TOKEN"; then
-            bashio::log.info "Auth exchange successful. Token saved."
-        else
-            bashio::log.error "Auth exchange failed. Code might be expired."
-        fi
-    else
-        # User supplied a bare access-token string
-        printf '{"token":{"access_token":"%s","token_type":"Bearer"}}\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
-        chmod 600 "$TOKEN_FILE"
-    fi
-fi
-
-# Print manual auth URL if no token exists yet
-if [[ ! -s "$TOKEN_FILE" ]]; then
-    bashio::log.info "No valid authentication found. Starting login..."
-    echo -e "\033[1mPlease visit the following URL to authorize the application:\033[0m\n"
-    auth_url="$(/usr/bin/agy-auth.sh generate_url)"
-    echo -e "\033[34m$auth_url\033[0m\n"
-    bashio::log.info "Enter the authorization code in the Add-on Configuration ('auth_token') and restart."
-fi
-
-# ------------------------------------------------------------------------------
-# 4. Home Assistant MCP Server Setup
-# ------------------------------------------------------------------------------
-bashio::log.info "Configuring Home Assistant MCP Server..."
-if [[ -x /usr/bin/ha-mcp-setup.sh ]]; then
-    /usr/bin/ha-mcp-setup.sh || bashio::log.warning "MCP setup returned non-zero. Continuing."
-fi
-
-# ------------------------------------------------------------------------------
-# 5. Download / Auto-Update Antigravity Binary
+# 3. Download / Auto-Update Antigravity Binary
 # ------------------------------------------------------------------------------
 AUTO_UPDATE="$(bashio::config 'auto_update' || true)"
 : "${AUTO_UPDATE:=true}"
@@ -269,6 +219,83 @@ INSTALLED_VER="$(current_installed_version)"
 bashio::log.info "Antigravity CLI version: ${INSTALLED_VER}"
 
 # ------------------------------------------------------------------------------
+# 4. Home Assistant MCP Server Setup
+# ------------------------------------------------------------------------------
+bashio::log.info "Configuring Home Assistant MCP Server..."
+if [[ -x /usr/bin/ha-mcp-setup.sh ]]; then
+    /usr/bin/ha-mcp-setup.sh || bashio::log.warning "MCP setup returned non-zero. Continuing."
+fi
+
+# ------------------------------------------------------------------------------
+# 5. Authentication Configuration
+# ------------------------------------------------------------------------------
+AUTH_TOKEN="$(bashio::config 'auth_token' || true)"
+if [[ -z "$AUTH_TOKEN" ]] || [[ "$AUTH_TOKEN" == "null" ]]; then
+    if [[ -f /data/options.json ]]; then
+        AUTH_TOKEN="$(jq -r '.auth_token // empty' /data/options.json)"
+    fi
+fi
+
+TOKEN_FILE="${GEMINI_DIR}/jetski-standalone-oauth-token"
+LAST_CODE_FILE="${GEMINI_DIR}/last_exchanged_code.txt"
+
+AUTH_TOKEN="$(printf '%s' "${AUTH_TOKEN:-}" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+
+LAST_CODE=""
+if [[ -f "$LAST_CODE_FILE" ]]; then
+    LAST_CODE="$(tr -d '\r\n[:space:]' < "$LAST_CODE_FILE")"
+fi
+
+# Check if user provided an auth token or new code in options
+if [[ -n "$AUTH_TOKEN" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
+    if [[ "$AUTH_TOKEN" == "{"* ]]; then
+        bashio::log.info "Processing raw JSON token from Add-on options..."
+        printf '%s\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
+        chmod 600 "$TOKEN_FILE"
+    elif [[ "$AUTH_TOKEN" != "$LAST_CODE" ]]; then
+        CLEAN_CODE="$(/usr/bin/agy-auth.sh sanitize "$AUTH_TOKEN")"
+        if [[ "$CLEAN_CODE" == "4/"* ]]; then
+            bashio::log.info "Found new Google Authorization Code. Exchanging for access token..."
+            if /usr/bin/agy-auth.sh exchange "$AUTH_TOKEN"; then
+                bashio::log.info "Auth exchange successful! Token saved."
+            else
+                bashio::log.error "Auth exchange failed. Code may be expired or generated for an older session."
+                /usr/bin/agy-auth.sh reset_verifier || true
+            fi
+        else
+            bashio::log.info "Processing Bearer access token string from Add-on options..."
+            printf '{"auth_method":"consumer","token":{"access_token":"%s","token_type":"Bearer"}}\n' "$AUTH_TOKEN" > "$TOKEN_FILE"
+            chmod 600 "$TOKEN_FILE"
+        fi
+    fi
+fi
+
+# Verify active session validity
+if /usr/bin/agy-auth.sh check_token; then
+    bashio::log.info "Authentication verified: valid session active."
+    /usr/bin/agy-auth.sh reset_verifier || true
+else
+    bashio::log.warning "No valid authentication found (missing, invalid, or expired)."
+    rm -f "$TOKEN_FILE"
+
+    echo -e "\n\033[1;33m=======================================================================\033[0m"
+    echo -e "\033[1;37m ZERO-G ANMELDUNG: Google-Konto verbinden\033[0m"
+    echo -e "\033[1;33m=======================================================================\033[0m"
+    echo -e "Bitte öffne folgenden Link in deinem Browser, um Antigravity zu autorisieren:\n"
+
+    auth_url="$(/usr/bin/agy-auth.sh generate_url)"
+    echo -e "\033[1;34m${auth_url}\033[0m\n"
+
+    echo -e "Anleitung:"
+    echo -e " 1. Öffne den Link oben im Browser und bestätige die Berechtigung."
+    echo -e " 2. Kopiere den Autorisierungscode (beginnt mit '4/...') oder die Weiterleitungs-URL."
+    echo -e " 3. Trage ihn in Home Assistant ein unter:"
+    echo -e "    Einstellungen -> Add-ons -> Zero-G -> Konfiguration -> 'auth_token'"
+    echo -e " 4. Klicke auf SPEICHERN und starte das Add-on neu."
+    echo -e "\033[1;33m=======================================================================\033[0m\n"
+fi
+
+# ------------------------------------------------------------------------------
 # 6. Start Nginx Ingress Reverse Proxy  (background)
 #
 #    nginx.conf already contains 'daemon off;' so `nginx` runs in the foreground.
@@ -308,16 +335,17 @@ RC_NAME="$(bashio::config 'remote_control_name' || true)"
 : "${RC_NAME:=homeassistant-zero-g}"
 HUB_PORT=4400
 
-bashio::log.info "Launching Antigravity (port ${HUB_PORT}, name '${RC_NAME}')..."
 cd "$WORKSPACE_DIR"
 
-if [[ ! -s "$TOKEN_FILE" ]]; then
-    bashio::log.warning "No valid token found. Add-on will idle until an authorization code is provided in the configuration."
+if ! /usr/bin/agy-auth.sh check_token; then
+    bashio::log.warning "No valid authentication found. Add-on will idle until an authorization code is provided in the configuration."
     while true; do
         sleep 3600 &
         wait $! || true
     done
 fi
+
+bashio::log.info "Launching Antigravity (port ${HUB_PORT}, name '${RC_NAME}')..."
 
 while true; do
     "$AGY_BIN" --remote-control \
@@ -330,8 +358,19 @@ while true; do
     wait "$AGY_PID" || true
     AGY_PID=""
 
-    # If we reach here, agy exited (crash or normal).  Restart after a delay
-    # unless we were killed by a signal (cleanup already called exit).
+    # Check if agy exited due to an authentication error
+    if ! /usr/bin/agy-auth.sh check_token; then
+        bashio::log.warning "Antigravity exited because authentication credentials are no longer valid."
+        rm -f "$TOKEN_FILE"
+        auth_url="$(/usr/bin/agy-auth.sh generate_url)"
+        bashio::log.info "Please visit this URL to re-authenticate: ${auth_url}"
+        while true; do
+            sleep 3600 &
+            wait $! || true
+        done
+    fi
+
+    # If we reach here, agy exited unexpectedly. Restart after a delay
     bashio::log.warning "Antigravity exited. Restarting in 5 s..."
     sleep 5 &
     wait $! || true   # interruptible sleep

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.3
+
+- 🐛 **Fix**: Google-Authentifizierungs-Flow vollständig überarbeitet und stabilisiert:
+  - **Persistenter PKCE-Verifier**: Der PKCE-Verifier bleibt über Container-Neustarts hinweg erhalten, sodass der Anmeldecode nicht mehr durch einen Add-on-Neustart ungültig wird (`No PKCE verifier found`).
+  - **Smart Code-Sanitization**: Automatische Erkennung und Formatierung des Authorization Codes (unterstützt nun auch das direkte Einfügen der vollen Google-Weiterleitungs-URL sowie URL-enkodierte Strings).
+  - **Schutz vor Mehrfacheinlösung**: Verhindert, dass bereits eingelöste Einmal-Codes bei nachfolgenden Container-Neustarts fälschlicherweise erneut an Google gesendet werden.
+  - **Live-Validierung & Token-Refresh**: Das Add-on prüft den Token live gegen die Google OAuth API und führt bei Bedarf einen automatischen Token-Refresh durch.
+  - **Keine Phantom-URLs mehr**: Antigravity startet erst dann, wenn ein gültiger Token verifiziert wurde. Dadurch werden verwirrende CLI-interne Login-URLs und Absturzschleifen im Log vollständig verhindert.
+
 ## 1.1.2
 
 - 🐛 **Fix**: Behebt den Startabbruch von Nginx (`"root" directive is duplicate in /etc/nginx/servers/ingress.conf`). Die redundante `root`-Anweisung wurde entfernt, sodass der Ingress-Reverse-Proxy und das Dashboard wieder fehlerfrei starten.
