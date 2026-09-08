@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Home Assistant Zero-G Add-on: Main Entrypoint
-#
-# Lifecycle:
-#   1. Setup persistent directories & symlinks
-#   2. Inject auth token (if configured)
-#   3. Configure HA MCP server
-#   4. Download / update Antigravity binary
-#   5. Start Nginx ingress proxy (background)
-#   6. Start Antigravity remote-control server (foreground via wait)
 # ==============================================================================
 set -euo pipefail
 
 # Ensure HOME is set, as some base images or s6-overlay v3 environments might omit it.
 export HOME=/root
+
+# In s6-overlay v3, CMD scripts might lose environment variables (like SUPERVISOR_TOKEN).
+# Re-execute with /command/with-contenv if available and SUPERVISOR_TOKEN is missing.
+if [[ -z "${SUPERVISOR_TOKEN:-}" ]] && [[ -x /command/with-contenv ]]; then
+    exec /command/with-contenv "$0" "$@"
+fi
+
 
 # Load Bashio — installed in the Dockerfile from the hassio-addons/bashio repo.
 # If somehow absent, fall back to plain logging and jq-based config parsing.
@@ -119,7 +118,9 @@ if [[ -n "${AUTH_TOKEN:-}" ]] && [[ "$AUTH_TOKEN" != "null" ]]; then
         # User supplied an Authorization Code
         bashio::log.info "Found Google Authorization Code. Exchanging for access token..."
         rm -f "$TOKEN_FILE"
-        echo "$AUTH_TOKEN" | "$AGY_BIN" auth login || bashio::log.warning "Auth exchange failed. Code might be expired."
+        # Since agy doesn't have a standalone 'auth' command, we trigger a dummy prompt
+        # which will force it to ask for the code on stdin, exchange it, and save the token.
+        echo "$AUTH_TOKEN" | "$AGY_BIN" -p "test" >/dev/null 2>&1 || bashio::log.warning "Auth exchange failed. Code might be expired."
     else
         # User supplied a bare access-token string
         printf '{"token":{"access_token":"%s","token_type":"Bearer"}}\n' "$AUTH_TOKEN" > "$TOKEN_FILE"

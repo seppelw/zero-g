@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.7
+
+- 🐛 **Fix**: Umgebungsvariablen-Injektion für s6-overlay v3 repariert. Das Skript re-exekutiert sich nun mit `with-contenv`, sodass der `SUPERVISOR_TOKEN` verfügbar ist und API-Fehler (403 Forbidden) komplett behoben sind.
+- 🐛 **Fix**: Der Dummy-Befehl zum Einlösen von Google OAuth Codes wurde korrigiert, da die CLI kein dediziertes `auth login` Subkommando besitzt.
+
 ## 1.0.6
 
 - ✨ **Neu**: Das Add-on erkennt nun automatisch, wenn ein Google OAuth "Authorization Code" (beginnend mit `4/`) in das `auth_token`-Feld eingetragen wird, und tauscht diesen im Hintergrund über `agy auth login` gegen ein echtes Access-Token aus. Dies behebt das Problem, dass die CLI im Hintergrund auf eine Code-Eingabe gewartet hat und dadurch Ingress mit einem 404-Fehler fehlschlug.
