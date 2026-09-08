@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Antigravity Home Assistant Add-on: Home Assistant MCP Server Setup
+# Zero-G Home Assistant Add-on: Home Assistant MCP Server Setup
 #
 # Reads add-on options from /data/options.json and writes/updates
 # /data/.gemini/config/mcp_config.json, preserving any other MCP servers

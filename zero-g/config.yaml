@@ -1,8 +1,8 @@
-name: "Antigravity"
-slug: "antigravity"
+name: "Zero-G"
+slug: "zero-g"
 version: "1.0.0"
-description: "Google Antigravity autonomous AI development environment & Web Interface with Home Assistant MCP integration"
-url: "https://github.com/dinkelhause/homeassistant-antigravity"
+description: "Zero-G: Schwerelose KI-Entwicklungsumgebung & Webinterface für Home Assistant powered by Google Antigravity"
+url: "https://github.com/dinkelhause/zero-g"
 arch:
   - amd64
   - aarch64
@@ -11,8 +11,8 @@ boot: "auto"
 init: false
 ingress: true
 ingress_port: 8099
-panel_icon: "mdi:robot-excited"
-panel_title: "Antigravity"
+panel_icon: "mdi:rocket-launch"
+panel_title: "Zero-G"
 homeassistant_api: true
 hassio_role: "default"
 map:
@@ -22,7 +22,7 @@ map:
   - ssl:ro
 options:
   auto_update: true
-  remote_control_name: "homeassistant-antigravity"
+  remote_control_name: "homeassistant-zero-g"
   ha_mcp_enabled: true
   ha_mcp_mode: "auto"
   ha_mcp_url: ""
@@ -42,4 +42,3 @@ schema:
   ha_mcp_history_url: "url?"
   auth_token: "password?"
   log_level: "list(trace|debug|info|notice|warning|error|fatal)"
-

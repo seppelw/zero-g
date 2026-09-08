@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Local Test & Validation Runner for Home Assistant Antigravity Add-on
+# Local Test & Validation Runner for Zero-G Home Assistant Add-on
 #
 # Runs all checks locally before pushing to GitHub:
 #   1. YAML syntax & Home Assistant Add-on Schema validation
@@ -44,7 +44,7 @@ warn() {
 }
 
 echo -e "${BLUE}======================================================${NC}"
-echo -e "${BLUE}  Running Local Validation & Test Suite              ${NC}"
+echo -e "${BLUE}  Running Local Validation & Test Suite (Zero-G)      ${NC}"
 echo -e "${BLUE}======================================================${NC}"
 
 # ------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ python3 - << 'EOF'
 import sys
 import yaml
 
-files = ['repository.yaml', 'antigravity/config.yaml', 'antigravity/build.yaml', '.github/workflows/lint.yaml']
+files = ['repository.yaml', 'zero-g/config.yaml', 'zero-g/build.yaml', '.github/workflows/lint.yaml']
 for f in files:
     try:
         with open(f, 'r') as fp:
@@ -70,9 +70,11 @@ for f in files:
         sys.exit(1)
 
 # Verify Home Assistant config.yaml structure
-with open('antigravity/config.yaml') as fp:
+with open('zero-g/config.yaml') as fp:
     cfg = yaml.safe_load(fp)
 
+assert cfg.get('name') == "Zero-G", "name must be Zero-G"
+assert cfg.get('slug') == "zero-g", "slug must be zero-g"
 assert cfg.get('ingress') is True, "ingress must be True"
 assert cfg.get('homeassistant_api') is True, "homeassistant_api must be True"
 assert cfg.get('ingress_port') == 8099, "ingress_port must be 8099"
@@ -96,8 +98,8 @@ fi
 step "Checking Shell Script syntax..."
 
 SCRIPTS=(
-    "antigravity/rootfs/usr/bin/run.sh"
-    "antigravity/rootfs/usr/bin/ha-mcp-setup.sh"
+    "zero-g/rootfs/usr/bin/run.sh"
+    "zero-g/rootfs/usr/bin/ha-mcp-setup.sh"
     "test-local.sh"
 )
 
@@ -110,7 +112,7 @@ for s in "${SCRIPTS[@]}"; do
 done
 
 if command -v shellcheck >/dev/null 2>&1; then
-    if shellcheck -x antigravity/rootfs/usr/bin/*.sh; then
+    if shellcheck -x zero-g/rootfs/usr/bin/*.sh; then
         pass "ShellCheck passed with zero warnings."
     else
         fail "ShellCheck reported issues."
@@ -143,12 +145,13 @@ class HTMLValidator(HTMLParser):
     pass
 
 try:
-    with open('antigravity/rootfs/var/www/onboarding/index.html', 'r', encoding='utf-8') as f:
+    with open('zero-g/rootfs/var/www/onboarding/index.html', 'r', encoding='utf-8') as f:
         content = f.read()
         validator = HTMLValidator()
         validator.feed(content)
         assert 'checkStatus' in content, "Missing checkStatus in index.html"
         assert '/_health' in content, "Missing /_health endpoint call in index.html"
+        assert 'Zero-G' in content, "Missing Zero-G branding in index.html"
     print("OK:HTML")
 except Exception as e:
     print(f"FAILED:HTML:{e}")
@@ -166,8 +169,8 @@ fi
 step "Verifying file permissions..."
 
 PERM_SCRIPTS=(
-    "antigravity/rootfs/usr/bin/run.sh"
-    "antigravity/rootfs/usr/bin/ha-mcp-setup.sh"
+    "zero-g/rootfs/usr/bin/run.sh"
+    "zero-g/rootfs/usr/bin/ha-mcp-setup.sh"
     "test-local.sh"
 )
 

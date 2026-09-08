@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Home Assistant Antigravity Add-on: Main Entrypoint
+# Home Assistant Zero-G Add-on: Main Entrypoint
 #
 # Lifecycle:
 #   1. Setup persistent directories & symlinks
@@ -28,7 +28,7 @@ else
     }
 fi
 
-bashio::log.info "Starting Antigravity Home Assistant Add-on..."
+bashio::log.info "Starting Zero-G Home Assistant Add-on..."
 
 # ------------------------------------------------------------------------------
 # 1. Architecture Detection
@@ -251,7 +251,7 @@ trap cleanup SIGTERM SIGINT SIGHUP
 # 8. Start Antigravity Remote-Control Server  (foreground loop)
 # ------------------------------------------------------------------------------
 RC_NAME="$(bashio::config 'remote_control_name' || true)"
-: "${RC_NAME:=homeassistant-antigravity}"
+: "${RC_NAME:=homeassistant-zero-g}"
 HUB_PORT=4400
 
 bashio::log.info "Launching Antigravity (port ${HUB_PORT}, name '${RC_NAME}')..."

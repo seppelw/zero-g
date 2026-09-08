@@ -1,13 +1,13 @@
-# 🌌 Home Assistant Add-on: Google Antigravity & MCP Assistant
+# 🛸 Zero-G: Antigravity Assistant für Home Assistant
 
-[![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdinkelhause%2Fhomeassistant-antigravity)
+[![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdinkelhause%2Fzero-g)
 ![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20aarch64-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Ingress%20Ready-41BDF5?logo=home-assistant)
 
-Dieses Repository stellt ein vollständiges Home Assistant Add-on für **Google Antigravity** bereit. Es lädt automatisch die aktuellste Version der Antigravity-Plattform herunter, startet den Remote-Control-Server und bettet das vollständige Webinterface per **Home Assistant Ingress** direkt in deine Seitenleiste ein – **ohne externe Portfreigaben**.
+**Zero-G** bringt die autonome Entwicklungs- und Steuerungsplattform **Google Antigravity** direkt in dein Home Assistant. Mit nativer Ingress-Einbindung steht dir das vollständige Webinterface direkt in deiner Seitenleiste zur Verfügung – **ohne externe Portfreigaben**.
 
-Zusätzlich konfiguriert das Add-on automatisch den **Home Assistant MCP Server (Model Context Protocol)**, sodass Antigravity sofort deine Entitäten steuern, Automationen analysieren und Konfigurationsdateien unter `/config` bearbeiten kann.
+Zusätzlich konfiguriert Zero-G automatisch den **Home Assistant MCP Server (Model Context Protocol)** vor, sodass die KI sofort deine Entitäten steuern, Automationen analysieren und Konfigurationsdateien unter `/config` direkt bearbeiten kann.
 
 ---
 
@@ -31,7 +31,7 @@ Zusätzlich konfiguriert das Add-on automatisch den **Home Assistant MCP Server 
 
 Klicke auf den folgenden Button, um das Repository direkt zu deinem Home Assistant hinzuzufügen:
 
-[![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdinkelhause%2Fhomeassistant-antigravity)
+[![Add Repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdinkelhause%2Fzero-g)
 
 ### Option 2: Manuell hinzufügen
 
@@ -39,10 +39,10 @@ Klicke auf den folgenden Button, um das Repository direkt zu deinem Home Assista
 2. Klicke oben rechts auf das Drei-Punkte-Menü (⋮) und wähle **Repositories**.
 3. Füge folgende Repository-URL ein:
    ```text
-   https://github.com/dinkelhause/homeassistant-antigravity
+   https://github.com/dinkelhause/zero-g
    ```
 4. Klicke auf **Hinzufügen** und schließe den Dialog.
-5. Das Add-on **Antigravity** erscheint nun im Add-on Store. Klicke darauf und wähle **Installieren**.
+5. Das Add-on **Zero-G** erscheint nun im Add-on Store. Klicke darauf und wähle **Installieren**.
 
 ---
 
@@ -50,7 +50,7 @@ Klicke auf den folgenden Button, um das Repository direkt zu deinem Home Assista
 
 ```mermaid
 flowchart TD
-    A[1. Add-on installieren] --> B[2. 'In Seitenleiste anzeigen' aktivieren]
+    A[1. Add-on 'Zero-G' installieren] --> B[2. 'In Seitenleiste anzeigen' aktivieren]
     B --> C[3. Add-on starten]
     C --> D{Bereits angemeldet?}
     D -- Nein --> E[Google Authentifizierung]
@@ -60,7 +60,7 @@ flowchart TD
     F2 --> G
     G --> H[Home Assistant MCP Server automatisch initialisiert]
     D -- Ja --> H
-    H --> I[Antigravity Web UI öffnet sich in der Seitenleiste]
+    H --> I[Zero-G Web UI öffnet sich in der Seitenleiste]
 ```
 
 ### Schritt 1: Starten & Ingress aktivieren
@@ -71,7 +71,7 @@ Aktiviere in den Add-on Einstellungen den Schalter **In der Seitenleiste anzeige
 - **Alternativ über Optionen**: Falls du bereits ein OAuth-Token hast, trage es in den Add-on Optionen im Feld `auth_token` ein.
 
 ### Schritt 3: Home Assistant MCP Server nutzen
-Das Add-on konfiguriert den MCP-Server automatisch. Sobald du das Webinterface in der Seitenleiste öffnest, stehen dir unter anderem folgende Tools zur Verfügung:
+Zero-G konfiguriert den MCP-Server automatisch. Sobald du das Webinterface in der Seitenleiste öffnest, stehen dir unter anderem folgende Tools zur Verfügung:
 - `homeassistant__GetLiveContext`
 - `intent__HassTurnOn` / `intent__HassTurnOff`
 - `climate__HassClimateSetTemperature`
@@ -86,13 +86,13 @@ Die Einstellungen können direkt im Add-on Reiter **Konfiguration** angepasst we
 
 ```yaml
 auto_update: true
-remote_control_name: "homeassistant-antigravity"
+remote_control_name: "homeassistant-zero-g"
 ha_mcp_enabled: true
 ha_mcp_mode: "auto"
-ha_mcp_url: "auto"
+ha_mcp_url: ""
 ha_mcp_token: ""
 ha_mcp_history_enabled: false
-ha_mcp_history_url: "auto"
+ha_mcp_history_url: ""
 auth_token: ""
 log_level: "info"
 ```
@@ -102,12 +102,13 @@ log_level: "info"
 | Schlüssel | Typ | Standard | Beschreibung |
 |---|---|---|---|
 | `auto_update` | bool | `true` | Sucht bei jedem Start nach neueren Versionen im Google Release Manifest und aktualisiert die CLI automatisch. |
-| `remote_control_name` | str | `"homeassistant-antigravity"` | Instanzname im Antigravity-Netzwerk. |
-| `ha_mcp_enabled` | bool | `true` | Aktiviert die automatische Einbindung des Home Assistant MCP Servers in Antigravity. |
+| `remote_control_name` | str | `"homeassistant-zero-g"` | Instanzname im Antigravity-Netzwerk. |
+| `ha_mcp_enabled` | bool | `true` | Aktiviert die automatische Einbindung des Home Assistant MCP Servers. |
 | `ha_mcp_mode` | str | `"auto"` | `auto`: Nutzt den internen Supervisor-Token.<br>`manual`: Nutzt benutzerdefinierte URL und Token. |
-| `ha_mcp_url` | str | `"auto"` | MCP-Endpunkt (bei `auto`: `http://supervisor/core/api/mcp`). |
+| `ha_mcp_url` | url? | `""` | Optionaler MCP-Endpunkt (bei leer: `http://supervisor/core/api/mcp`). |
 | `ha_mcp_token` | password | `""` | Optionaler Long-Lived Access Token für den manuellen Modus. |
 | `ha_mcp_history_enabled` | bool | `false` | Aktiviert den Verlauf- und Statistik-MCP-Server (`hass_mcp`). |
+| `ha_mcp_history_url` | url? | `""` | Optionaler History MCP Endpunkt (bei leer: `http://supervisor/core/api/hass_mcp`). |
 | `auth_token` | password | `""` | Optionales Google OAuth Token zur direkten Authentifizierung. |
 | `log_level` | str | `"info"` | Protokollierungsdetail: `trace`, `debug`, `info`, `warning`, `error`. |
 
@@ -123,17 +124,17 @@ log_level: "info"
 └──────────────────────────┬─────────────────────────────┘
                            │ Ingress Port 8099
 ┌──────────────────────────▼─────────────────────────────┐
-│ Antigravity Add-on Container                           │
+│ Zero-G Add-on Container                                │
 │                                                        │
 │  ┌──────────────────────────────────────────────────┐  │
 │  │ Nginx Reverse Proxy (Port 8099)                  │  │
-│  │  - X-Ingress-Path base rewriting (<base href>)   │  │
+│  │  - X-Ingress-Path path rewriting                 │  │
 │  │  - WebSocket streaming (Upgrade / Connection)    │  │
-│  │  - Onboarding fallback UI                        │  │
+│  │  - Health polling & Onboarding fallback UI       │  │
 │  └──────────────────────┬───────────────────────────┘  │
 │                         │ localhost:4400               │
 │  ┌──────────────────────▼───────────────────────────┐  │
-│  │ Antigravity Server (agy --remote-control)        │  │
+│  │ Antigravity Engine (agy --remote-control)        │  │
 │  │  - React / Vite Web Interface                    │  │
 │  │  - Autonomous Agent Core                         │  │
 │  │  - Model Context Protocol Client (MCP)           │  │
@@ -161,4 +162,4 @@ Dieses Projekt ist unter der **MIT-Lizenz** lizenziert – siehe [LICENSE](LICEN
 - Die eigentliche **Google Antigravity Software** (`agy`) wird **nicht** in diesem Repository gehostet oder weiterverbreitet. Sie wird zur Laufzeit vom Endanwender direkt von den offiziellen Google-Servern heruntergeladen und unterliegt den jeweiligen Google Nutzungsbedingungen (Terms of Service).
 - *Google* und *Antigravity* sind Marken der Google LLC. Dieses Projekt ist eine unabhängige Community-Entwicklung und steht in keiner geschäftlichen Verbindung zu Google LLC.
 
-- **Fragen oder Feature-Wünsche?** Erstelle gerne ein Issue im [GitHub Repository](https://github.com/dinkelhause/homeassistant-antigravity/issues).
+- **Fragen oder Feature-Wünsche?** Erstelle gerne ein Issue im [GitHub Repository](https://github.com/dinkelhause/zero-g/issues).

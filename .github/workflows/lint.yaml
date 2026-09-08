@@ -25,15 +25,14 @@ jobs:
       - name: Validate YAML files
         run: |
           python -c "import yaml; yaml.safe_load(open('repository.yaml'))"
-          python -c "import yaml; yaml.safe_load(open('antigravity/config.yaml'))"
-          python -c "import yaml; yaml.safe_load(open('antigravity/build.yaml'))"
+          python -c "import yaml; yaml.safe_load(open('zero-g/config.yaml'))"
+          python -c "import yaml; yaml.safe_load(open('zero-g/build.yaml'))"
 
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
-          scandir: 'antigravity/rootfs/usr/bin'
+          scandir: 'zero-g/rootfs/usr/bin'
 
       - name: Run MCP Setup Unit Tests
         run: |
           python3 -m unittest discover -s tests -p "test_*.py" -v
-

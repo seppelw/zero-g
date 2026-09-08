@@ -12,7 +12,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SETUP_SCRIPT = REPO_ROOT / "antigravity" / "rootfs" / "usr/bin" / "ha-mcp-setup.sh"
+SETUP_SCRIPT = REPO_ROOT / "zero-g" / "rootfs" / "usr/bin" / "ha-mcp-setup.sh"
 
 
 class TestHAMCPSetup(unittest.TestCase):
