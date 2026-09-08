@@ -235,21 +235,31 @@ notify_ha_mcp_missing() {
         return
     fi
 
-    local msg="Damit Zero-G dein Smart Home steuern und Konfigurationen bearbeiten kann, werden die entsprechenden MCP-Server in Home Assistant benötigt:\n\n"
+    local msg="Damit Zero-G dein Smart Home steuern und Konfigurationen bearbeiten kann, werden die entsprechenden MCP-Server in Home Assistant benötigt:
+
+"
 
     if [[ "$core_stat" == "missing" ]]; then
-        msg+="- **1. Model Context Protocol Server (Core-Integration)**:\n"
-        msg+="Empfohlen für direkte Gerätesteuerung & Assist-Intents (Lampen, Thermostate, Schalter, Skripte).\n"
-        msg+="[<img src=\"https://my.home-assistant.io/badges/config_flow_start.svg\" alt=\"Integration hinzufügen\">](https://my.home-assistant.io/redirect/config_flow_start/?domain=mcp_server)\n\n"
+        msg+="- **1. Model Context Protocol Server (Core-Integration)**:
+Empfohlen für direkte Gerätesteuerung & Assist-Intents (Lampen, Thermostate, Schalter, Skripte).
+
+[![Integration hinzufügen](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=mcp_server)
+
+"
     fi
 
     if [[ "$comm_stat" == "missing" ]]; then
-        msg+="- **2. Native MCP for Home Assistant (Community-Integration via HACS)**:\n"
-        msg+="Empfohlen für erweiterte Verwaltungs- und Entwicklertools (Lovelace Dashboards, YAML-Dateien, HACS, Backups).\n"
-        msg+="*Schritt 1: In HACS öffnen & herunterladen:*\n"
-        msg+="[<img src=\"https://my.home-assistant.io/badges/hacs_repository.svg\" alt=\"In HACS öffnen\">](https://my.home-assistant.io/redirect/hacs_repository/?owner=czechbol&repository=hass-mcp&category=integration)\n\n"
-        msg+="*Schritt 2: Nach dem HA-Neustart hinzufügen:*\n"
-        msg+="[<img src=\"https://my.home-assistant.io/badges/config_flow_start.svg\" alt=\"Integration hinzufügen\">](https://my.home-assistant.io/redirect/config_flow_start/?domain=hass_mcp)\n\n"
+        msg+="- **2. Native MCP for Home Assistant (Community-Integration via HACS)**:
+Empfohlen für erweiterte Verwaltungs- und Entwicklertools (Lovelace Dashboards, YAML-Dateien, HACS, Backups).
+
+*Schritt 1: In HACS öffnen & herunterladen:*
+
+[![In HACS öffnen](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=czechbol&repository=hass-mcp&category=integration)
+
+*Schritt 2: Nach dem HA-Neustart hinzufügen:*
+
+[![Integration hinzufügen](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=hass_mcp)
+"
     fi
 
     local payload
