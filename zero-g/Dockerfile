@@ -23,7 +23,7 @@ RUN apt-get update \
 COPY rootfs /
 
 # Ensure execution permissions on all scripts
-RUN chmod +x /usr/bin/run.sh /usr/bin/ha-mcp-setup.sh
+RUN chmod +x /usr/bin/run.sh /usr/bin/ha-mcp-setup.sh /usr/bin/agy-auth.sh
 
 WORKDIR /data
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+
+- 🐛 **Fix**: Behebt den Startabbruch von Nginx (`"root" directive is duplicate in /etc/nginx/servers/ingress.conf`). Die redundante `root`-Anweisung wurde entfernt, sodass der Ingress-Reverse-Proxy und das Dashboard wieder fehlerfrei starten.
+
 ## 1.1.1
 
 - 🐛 **Fix**: Verbindungs-Health-Check im Ingress Dashboard angepasst: Nginx pollt nun den nativen `/healthz` Endpunkt der Antigravity-CLI. Sobald der Daemon online ist, schaltet die Status-Ampel im Dashboard sofort auf Grün (`Online als "homeassistant-zero-g"`).

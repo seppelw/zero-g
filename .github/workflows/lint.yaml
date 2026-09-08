@@ -36,3 +36,11 @@ jobs:
       - name: Run MCP Setup Unit Tests
         run: |
           python3 -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Validate Nginx Config
+        run: |
+          sudo apt-get update && sudo apt-get install -y nginx
+          NGINX_TEST_TMP=$(mktemp --suffix=.conf)
+          printf "events { worker_connections 1024; }\nhttp {\n    include %s;\n}\n" "$PWD/zero-g/rootfs/etc/nginx/servers/ingress.conf" > "$NGINX_TEST_TMP"
+          nginx -t -c "$NGINX_TEST_TMP"
+          rm -f "$NGINX_TEST_TMP"

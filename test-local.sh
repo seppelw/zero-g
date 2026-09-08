@@ -100,6 +100,7 @@ step "Checking Shell Script syntax..."
 SCRIPTS=(
     "zero-g/rootfs/usr/bin/run.sh"
     "zero-g/rootfs/usr/bin/ha-mcp-setup.sh"
+    "zero-g/rootfs/usr/bin/agy-auth.sh"
     "test-local.sh"
 )
 
@@ -163,6 +164,24 @@ else
     fail "Onboarding HTML validation failed."
 fi
 
+if command -v nginx >/dev/null 2>&1; then
+    NGINX_TEST_TMP="$(mktemp --suffix=.conf)"
+    cat << EOF > "$NGINX_TEST_TMP"
+events { worker_connections 1024; }
+http {
+    include ${PWD}/zero-g/rootfs/etc/nginx/servers/ingress.conf;
+}
+EOF
+    if nginx -t -c "$NGINX_TEST_TMP" >/dev/null 2>&1; then
+        pass "Nginx ingress.conf configuration syntax is valid."
+    else
+        fail "Nginx ingress.conf configuration syntax check failed."
+    fi
+    rm -f "$NGINX_TEST_TMP"
+else
+    warn "Nginx not installed locally; skipping nginx configuration test."
+fi
+
 # ------------------------------------------------------------------------------
 # 5. File Permissions Check
 # ------------------------------------------------------------------------------
@@ -171,6 +190,7 @@ step "Verifying file permissions..."
 PERM_SCRIPTS=(
     "zero-g/rootfs/usr/bin/run.sh"
     "zero-g/rootfs/usr/bin/ha-mcp-setup.sh"
+    "zero-g/rootfs/usr/bin/agy-auth.sh"
     "test-local.sh"
 )
 

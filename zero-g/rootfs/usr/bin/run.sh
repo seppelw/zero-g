@@ -290,8 +290,12 @@ NGINX_PID=$!
 AGY_PID=""
 cleanup() {
     bashio::log.info "Shutting down..."
-    [[ -n "${AGY_PID:-}" ]]   && kill -TERM "$AGY_PID"   2>/dev/null || true
-    [[ -n "${NGINX_PID:-}" ]] && kill -TERM "$NGINX_PID" 2>/dev/null || true
+    if [[ -n "${AGY_PID:-}" ]]; then
+        kill -TERM "$AGY_PID" 2>/dev/null || true
+    fi
+    if [[ -n "${NGINX_PID:-}" ]]; then
+        kill -TERM "$NGINX_PID" 2>/dev/null || true
+    fi
     wait 2>/dev/null || true
     exit 0
 }
