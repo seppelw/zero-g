@@ -153,7 +153,7 @@ fi
 # ------------------------------------------------------------------------------
 # 2. Proxmox VE MCP Setup (@samik081/mcp-pve)
 # ------------------------------------------------------------------------------
-PVE_MCP_ENABLED="$(opt pve_mcp_enabled false)"
+PVE_MCP_ENABLED="$(opt pve_mcp_enabled "")"
 PVE_BASE_URL="$(opt pve_base_url "https://192.168.178.11:8006")"
 PVE_TOKEN_ID="$(opt pve_token_id "root@pam!antigravity")"
 PVE_TOKEN_SECRET="$(opt pve_token_secret "")"
@@ -173,8 +173,8 @@ if [[ "$PVE_MCP_ENABLED" == "true" ]] && [[ -n "$PVE_BASE_URL" ]] && [[ -n "$PVE
         }
     ' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp"         && mv -f "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
 elif [[ "$PVE_MCP_ENABLED" == "false" ]]; then
-    if jq -e '.mcpServers.proxmox' "$CONFIG_FILE" >/dev/null 2>&1; then
-        log "INFO" "Proxmox MCP disabled in options — removing from config."
+    if [[ "$(jq -r '.mcpServers.proxmox.command // empty' "$CONFIG_FILE" 2>/dev/null)" == "/usr/bin/mcp-pve" ]]; then
+        log "INFO" "Proxmox MCP disabled in options — removing managed entry."
         jq 'del(.mcpServers.proxmox)' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp"             && mv -f "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
     fi
 fi
@@ -182,7 +182,7 @@ fi
 # ------------------------------------------------------------------------------
 # 3. Nginx Proxy Manager MCP Setup (@warnyin/nginx-proxy-manager-mcp)
 # ------------------------------------------------------------------------------
-NPM_MCP_ENABLED="$(opt npm_mcp_enabled false)"
+NPM_MCP_ENABLED="$(opt npm_mcp_enabled "")"
 NPM_BASE_URL="$(opt npm_base_url "http://192.168.178.169:81/api")"
 NPM_EMAIL="$(opt npm_email "")"
 NPM_PASSWORD="$(opt npm_password "")"
@@ -201,8 +201,8 @@ if [[ "$NPM_MCP_ENABLED" == "true" ]] && [[ -n "$NPM_BASE_URL" ]] && [[ -n "$NPM
         }
     ' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp"         && mv -f "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
 elif [[ "$NPM_MCP_ENABLED" == "false" ]]; then
-    if jq -e '.mcpServers.nginx_proxy_manager' "$CONFIG_FILE" >/dev/null 2>&1; then
-        log "INFO" "NPM MCP disabled in options — removing from config."
+    if [[ "$(jq -r '.mcpServers.nginx_proxy_manager.command // empty' "$CONFIG_FILE" 2>/dev/null)" == "/usr/bin/nginx-proxy-manager-mcp" ]]; then
+        log "INFO" "NPM MCP disabled in options — removing managed entry."
         jq 'del(.mcpServers.nginx_proxy_manager)' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp"             && mv -f "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
     fi
 fi

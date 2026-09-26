@@ -177,5 +177,68 @@ class TestHAMCPSetup(unittest.TestCase):
         self.assertIn("community_status", status)
 
 
+    def test_proxmox_mcp_enabled(self):
+        """Test activating Proxmox VE MCP server via options."""
+        options = {
+            "ha_mcp_enabled": True,
+            "ha_mcp_mode": "auto",
+            "pve_mcp_enabled": True,
+            "pve_base_url": "https://192.168.178.11:8006",
+            "pve_token_id": "root@pam!antigravity",
+            "pve_token_secret": "test_secret_uuid"
+        }
+        res = self.run_setup(options=options, supervisor_token="token_pve")
+        self.assertEqual(res.returncode, 0, f"Script failed: {res.stderr}")
+
+        config = self.read_config()
+        self.assertIn("proxmox", config["mcpServers"])
+        pve = config["mcpServers"]["proxmox"]
+        self.assertEqual(pve["command"], "/usr/bin/mcp-pve")
+        self.assertEqual(pve["env"]["PVE_BASE_URL"], "https://192.168.178.11:8006")
+        self.assertEqual(pve["env"]["PVE_TOKEN_ID"], "root@pam!antigravity")
+        self.assertEqual(pve["env"]["PVE_TOKEN_SECRET"], "test_secret_uuid")
+
+    def test_npm_mcp_enabled(self):
+        """Test activating Nginx Proxy Manager MCP server via options."""
+        options = {
+            "ha_mcp_enabled": True,
+            "ha_mcp_mode": "auto",
+            "npm_mcp_enabled": True,
+            "npm_base_url": "http://192.168.178.169:81/api",
+            "npm_email": "admin@example.com",
+            "npm_password": "npm_secret_password"
+        }
+        res = self.run_setup(options=options, supervisor_token="token_npm")
+        self.assertEqual(res.returncode, 0, f"Script failed: {res.stderr}")
+
+        config = self.read_config()
+        self.assertIn("nginx_proxy_manager", config["mcpServers"])
+        npm = config["mcpServers"]["nginx_proxy_manager"]
+        self.assertEqual(npm["command"], "/usr/bin/nginx-proxy-manager-mcp")
+        self.assertEqual(npm["env"]["NPM_BASE_URL"], "http://192.168.178.169:81/api")
+        self.assertEqual(npm["env"]["NPM_EMAIL"], "admin@example.com")
+        self.assertEqual(npm["env"]["NPM_PASSWORD"], "npm_secret_password")
+
+    def test_proxmox_mcp_disabled_removes_managed(self):
+        """Test disabling Proxmox VE MCP removes managed entry."""
+        existing = {
+            "mcpServers": {
+                "proxmox": {
+                    "command": "/usr/bin/mcp-pve",
+                    "env": {"PVE_BASE_URL": "https://old"}
+                }
+            }
+        }
+        options = {
+            "ha_mcp_enabled": True,
+            "pve_mcp_enabled": False
+        }
+        res = self.run_setup(options=options, existing_config=existing, supervisor_token="token_123")
+        self.assertEqual(res.returncode, 0, f"Script failed: {res.stderr}")
+
+        config = self.read_config()
+        self.assertNotIn("proxmox", config["mcpServers"])
+
+
 if __name__ == "__main__":
     unittest.main()
