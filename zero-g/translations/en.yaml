@@ -23,6 +23,30 @@ configuration:
   ha_mcp_history_url:
     name: "Community MCP URL"
     description: "Custom Community MCP URL (leave blank for default: http://supervisor/core/api/hass_mcp)."
+  pve_mcp_enabled:
+    name: "Enable Proxmox VE MCP"
+    description: "Enables the Proxmox VE MCP server (@samik081/mcp-pve) to monitor and control VMs, LXC containers, snapshots, and cluster storage."
+  pve_base_url:
+    name: "Proxmox VE API URL"
+    description: "Base URL for the Proxmox VE API (e.g. https://192.168.178.11:8006)."
+  pve_token_id:
+    name: "Proxmox VE Token ID"
+    description: "Proxmox API Token ID (e.g. root@pam!antigravity)."
+  pve_token_secret:
+    name: "Proxmox VE Token Secret"
+    description: "API Token Secret (UUID) for Proxmox VE access."
+  npm_mcp_enabled:
+    name: "Enable Nginx Proxy Manager MCP"
+    description: "Enables the Nginx Proxy Manager MCP server (@warnyin/nginx-proxy-manager-mcp) to manage proxy hosts, SSL certs, and access lists."
+  npm_base_url:
+    name: "NPM API URL"
+    description: "API endpoint URL of Nginx Proxy Manager (e.g. http://192.168.178.169:81/api)."
+  npm_email:
+    name: "NPM Login Email"
+    description: "Email address for Nginx Proxy Manager authentication."
+  npm_password:
+    name: "NPM Login Password"
+    description: "Password for Nginx Proxy Manager authentication."
   auth_token:
     name: "Google Authorization Code / Token"
     description: "Paste your Google OAuth code (starting with 4/...) or token to complete authentication."

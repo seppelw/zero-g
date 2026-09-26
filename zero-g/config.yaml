@@ -1,6 +1,6 @@
 name: "Zero-G"
 slug: "zero-g"
-version: "1.1.9"
+version: "1.2.0"
 description: "Zero-G: Schwerelose KI-Entwicklungsumgebung & Webinterface für Home Assistant powered by Google Antigravity"
 url: "https://github.com/seppelw/zero-g"
 arch:
@@ -30,6 +30,14 @@ options:
   ha_mcp_token: ""
   ha_mcp_history_enabled: false
   ha_mcp_history_url: ""
+  pve_mcp_enabled: false
+  pve_base_url: "https://192.168.178.11:8006"
+  pve_token_id: "root@pam!antigravity"
+  pve_token_secret: ""
+  npm_mcp_enabled: false
+  npm_base_url: "http://192.168.178.169:81/api"
+  npm_email: "antigravity@photonentransformer.de"
+  npm_password: ""
   auth_token: ""
   log_level: "info"
 schema:
@@ -41,5 +49,13 @@ schema:
   ha_mcp_token: "password?"
   ha_mcp_history_enabled: "bool"
   ha_mcp_history_url: "str?"
+  pve_mcp_enabled: "bool"
+  pve_base_url: "str?"
+  pve_token_id: "str?"
+  pve_token_secret: "password?"
+  npm_mcp_enabled: "bool"
+  npm_base_url: "str?"
+  npm_email: "str?"
+  npm_password: "password?"
   auth_token: "password?"
   log_level: "list(trace|debug|info|notice|warning|error|fatal)"

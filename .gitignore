@@ -21,3 +21,6 @@ __pycache__/
 *.py[cod]
 node_modules/
 .npm/
+
+# Internal Maintenance & Briefing logs
+*MAINTENANCE_LOG.md

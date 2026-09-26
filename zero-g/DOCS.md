@@ -52,6 +52,11 @@ Zero-G automatically discovers and orchestrates both Home Assistant MCP servers:
 - **Manual Mode (`ha_mcp_mode: manual`)**:
   Allows custom endpoints and Long-Lived Access Tokens if running across networks.
 
+### 🖥️ Proxmox VE & Infrastructure MCP Servers
+Zero-G includes a native Node.js 22 LTS runtime environment with built-in infrastructure MCP servers:
+- **Proxmox VE MCP (`@samik081/mcp-pve`)**: Monitor and control your Proxmox VE cluster, VMs, and LXC containers. Create snapshots, check RRD metrics, start/stop guests, and trigger vzdump backups.
+- **Nginx Proxy Manager MCP (`@warnyin/nginx-proxy-manager-mcp`)**: Manage reverse proxy hosts, SSL Let's Encrypt certificates, redirection rules, and access lists directly from Antigravity.
+
 ---
 
 ### ⚙️ Configuration Options
@@ -66,6 +71,14 @@ Zero-G automatically discovers and orchestrates both Home Assistant MCP servers:
 | `ha_mcp_token` | password | `""` | Optional Long-Lived Access Token for manual mode. |
 | `ha_mcp_history_enabled` | boolean | `false` | Enables Community MCP / History server integration. |
 | `ha_mcp_history_url` | string | `""` | Custom Community MCP endpoint (default: `http://supervisor/core/api/hass_mcp`). |
+| `pve_mcp_enabled` | boolean | `false` | Enables Proxmox VE MCP server (`@samik081/mcp-pve`). |
+| `pve_base_url` | string | `"https://192.168.178.11:8006"` | Proxmox VE API base URL. |
+| `pve_token_id` | string | `"root@pam!antigravity"` | Proxmox VE API Token ID. |
+| `pve_token_secret` | password | `""` | Proxmox VE API Token Secret. |
+| `npm_mcp_enabled` | boolean | `false` | Enables Nginx Proxy Manager MCP server (`@warnyin/nginx-proxy-manager-mcp`). |
+| `npm_base_url` | string | `"http://192.168.178.169:81/api"` | Nginx Proxy Manager API URL. |
+| `npm_email` | string | `""` | NPM login email address. |
+| `npm_password` | password | `""` | NPM login password. |
 | `auth_token` | password | `""` | Google OAuth authorization code or token. |
 | `log_level` | string | `"info"` | Log level (`trace`, `debug`, `info`, `warning`, `error`). |
 
@@ -117,6 +130,11 @@ Zero-G unterstützt und verbindet automatisch beide Home Assistant MCP-Varianten
 - **Manueller Modus (`ha_mcp_mode: manual`)**:
   Falls du einen externen Host oder Long-Lived Access Token verwenden möchtest, kannst du deine URL und den Token in der Konfiguration eintragen.
 
+### 🖥️ Proxmox VE & Infrastruktur MCP-Server
+Zero-G bringt native Laufzeitunterstützung (Node.js 22 LTS) für weitere Infrastruktur-Tools mit:
+- **Proxmox VE MCP (`@samik081/mcp-pve`)**: Ermöglicht der KI die vollständige Verwaltung deines Proxmox VE Clusters und aller VMs/LXC-Container (Status, Snapshots, Backups, VM-Steuerung).
+- **Nginx Proxy Manager MCP (`@warnyin/nginx-proxy-manager-mcp`)**: Ermöglicht das Verwalten von Proxy-Hosts, SSL-Zertifikaten (Let's Encrypt), Weiterleitungsregeln und Access-Listen direkt aus Antigravity heraus.
+
 ---
 
 ## ⚙️ Konfigurationsoptionen
@@ -131,6 +149,14 @@ Zero-G unterstützt und verbindet automatisch beide Home Assistant MCP-Varianten
 | `ha_mcp_token` | password | `""` | Optionaler Long-Lived Access Token für den manuellen Modus. |
 | `ha_mcp_history_enabled` | boolean | `false` | Bindet optional den Home Assistant History MCP Server ein. |
 | `ha_mcp_history_url` | string | `""` | Optionaler History MCP Endpunkt (bei leer: `http://supervisor/core/api/hass_mcp`). |
+| `pve_mcp_enabled` | boolean | `false` | Aktiviert den Proxmox VE MCP Server (`@samik081/mcp-pve`). |
+| `pve_base_url` | string | `"https://192.168.178.11:8006"` | Basis-URL des Proxmox-Servers oder Clusters. |
+| `pve_token_id` | string | `"root@pam!antigravity"` | API Token ID in Proxmox (z. B. `root@pam!antigravity`). |
+| `pve_token_secret` | password | `""` | API Token Secret für den Proxmox-Zugriff. |
+| `npm_mcp_enabled` | boolean | `false` | Aktiviert den Nginx Proxy Manager MCP Server (`@warnyin/nginx-proxy-manager-mcp`). |
+| `npm_base_url` | string | `"http://192.168.178.169:81/api"` | API-URL des Nginx Proxy Managers. |
+| `npm_email` | string | `""` | Login-E-Mail für Nginx Proxy Manager. |
+| `npm_password` | password | `""` | Login-Passwort für Nginx Proxy Manager. |
 | `auth_token` | password | `""` | Optionales OAuth-Token zur direkten Übergabe. |
 | `log_level` | string | `"info"` | Protokollierungsstufe (`trace`, `debug`, `info`, `warning`, `error`). |
 

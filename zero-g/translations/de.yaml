@@ -23,6 +23,30 @@ configuration:
   ha_mcp_history_url:
     name: "Community MCP URL"
     description: "Optionaler benutzerdefinierter Community-MCP-Endpunkt (bei leer: http://supervisor/core/api/hass_mcp)."
+  pve_mcp_enabled:
+    name: "Proxmox VE MCP aktivieren"
+    description: "Aktiviert den Proxmox VE MCP Server (@samik081/mcp-pve) zur Steuerung und Überwachung von VMs, Containern, Snapshots und Storage."
+  pve_base_url:
+    name: "Proxmox VE API URL"
+    description: "Basis-URL der Proxmox VE API (z. B. https://192.168.178.11:8006)."
+  pve_token_id:
+    name: "Proxmox VE Token ID"
+    description: "Proxmox API Token ID (z. B. root@pam!antigravity)."
+  pve_token_secret:
+    name: "Proxmox VE Token Secret"
+    description: "API Token Secret (UUID) für den Proxmox VE Zugriff."
+  npm_mcp_enabled:
+    name: "Nginx Proxy Manager MCP aktivieren"
+    description: "Aktiviert den Nginx Proxy Manager MCP Server (@warnyin/nginx-proxy-manager-mcp) zur Verwaltung von Proxy-Hosts, SSL-Zertifikaten und Weiterleitungen."
+  npm_base_url:
+    name: "NPM API URL"
+    description: "API-Endpunkt des Nginx Proxy Managers (z. B. http://192.168.178.169:81/api)."
+  npm_email:
+    name: "NPM Login E-Mail"
+    description: "E-Mail-Adresse für den Login im Nginx Proxy Manager."
+  npm_password:
+    name: "NPM Login Passwort"
+    description: "Passwort für den Login im Nginx Proxy Manager."
   auth_token:
     name: "Google Autorisierungscode / Token"
     description: "Füge hier deinen Google OAuth Autorisierungscode (beginnend mit 4/...) oder Token ein."

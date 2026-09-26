@@ -26,6 +26,7 @@ Dieses Add-on lädt das offiziell kompilierte **Antigravity Binary** von Google 
 
 ## ✨ Features
 
+- 🖥️ **Multi-MCP Infrastruktur-Hub**: Integrierte Node.js 22 LTS Laufzeitumgebung mit nativer Unterstützung für **Proxmox VE** (`@samik081/mcp-pve` — VMs, LXC-Container, Snapshots, Backups) und **Nginx Proxy Manager** (`@warnyin/nginx-proxy-manager-mcp` — Reverse-Proxys, SSL-Zertifikate).
 - 🚀 **Automatischer Download & Updates**: Lädt beim Start automatisch das neueste offizielle Release von Google herunter (inklusive SHA-512-Prüfung). Unterstützt **`amd64` (x86_64)** und **`aarch64` (Raspberry Pi 4/5, HA Green/Yellow)**.
 - 🌐 **Nahtlose Ingress-Integration**: Direkt in die Home Assistant Seitenleiste integriert über einen internen Nginx-Proxy mit WebSocket-Unterstützung und dynamischem Pfad-Rewriting.
 - 🔌 **Intelligente MCP Server Dual-Integration**:
@@ -121,6 +122,14 @@ log_level: "info"
 | `ha_mcp_token` | password | `""` | Optionaler Long-Lived Access Token für den manuellen Modus. |
 | `ha_mcp_history_enabled` | bool | `false` | Aktiviert optional den Community-MCP-Server (`czechbol/hass-mcp`). |
 | `ha_mcp_history_url` | url? | `""` | Optionaler Community-MCP Endpunkt (bei leer: `http://supervisor/core/api/hass_mcp`). |
+| `pve_mcp_enabled` | bool | `false` | Aktiviert den Proxmox VE MCP Server (`@samik081/mcp-pve`). |
+| `pve_base_url` | url? | `"https://192.168.178.11:8006"` | Proxmox VE API Basis-URL. |
+| `pve_token_id` | str? | `"root@pam!antigravity"` | Proxmox VE API Token ID. |
+| `pve_token_secret` | password? | `""` | Proxmox VE API Token Secret. |
+| `npm_mcp_enabled` | bool | `false` | Aktiviert den Nginx Proxy Manager MCP Server (`@warnyin/nginx-proxy-manager-mcp`). |
+| `npm_base_url` | url? | `"http://192.168.178.169:81/api"` | Nginx Proxy Manager API-URL. |
+| `npm_email` | str? | `""` | Login-E-Mail für Nginx Proxy Manager. |
+| `npm_password` | password? | `""` | Login-Passwort für Nginx Proxy Manager. |
 | `auth_token` | password | `""` | Optionales Google OAuth Token zur direkten Authentifizierung. |
 | `log_level` | str | `"info"` | Protokollierungsdetail: `trace`, `debug`, `info`, `warning`, `error`. |
 

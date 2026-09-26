@@ -20,6 +20,7 @@
   - **Community MCP Server ([`czechbol/hass-mcp`](https://github.com/czechbol/hass-mcp), `/api/hass_mcp`)**: Deep management tools for Lovelace dashboards, YAML configuration files, HACS packages, and backups.
   - **Smart Live Probe**: Zero-G probes both endpoints on boot. If any integration is missing, it creates a persistent notification with **My Home Assistant 1-click setup buttons**.
   - **Auto-Dual-Mounting**: When community MCP is detected, it is mounted alongside Core MCP automatically without manual configuration.
+- 🖥️ **Multi-MCP Infrastructure Hub**: Native Node.js 22 LTS runtime environment with built-in integrations for **Proxmox VE** (`@samik081/mcp-pve` — VMs, LXC containers, snapshots, backups) and **Nginx Proxy Manager** (`@warnyin/nginx-proxy-manager-mcp` — proxy hosts, SSL certs).
 - 🔄 **Self-Updating Engine**: Automatically checks for new Google Antigravity releases on startup and updates the CLI binary securely (verified via SHA-512). Supports **`amd64` (x86_64)** and **`aarch64` (Raspberry Pi 4/5, Home Assistant Green & Yellow)**.
 - 🔐 **Frictionless Google OAuth**: Single-click Google login directly from the Ingress interface or Home Assistant notification drawer, with persistent PKCE state across restarts.
 - 📁 **Direct Access to HA Storage**: Direct read/write access to `/config` (`configuration.yaml`, automations, blueprints), `/share`, and `/addons`.
@@ -125,6 +126,14 @@ log_level: "info"
 | `ha_mcp_token` | password | `""` | Long-Lived Access Token for manual mode. |
 | `ha_mcp_history_enabled` | bool | `false` | Enables community MCP server (`czechbol/hass-mcp`). |
 | `ha_mcp_history_url` | url? | `""` | Custom Community MCP endpoint (default: `http://supervisor/core/api/hass_mcp`). |
+| `pve_mcp_enabled` | bool | `false` | Enables Proxmox VE MCP server (`@samik081/mcp-pve`). |
+| `pve_base_url` | url? | `"https://192.168.178.11:8006"` | Proxmox VE API base URL. |
+| `pve_token_id` | str? | `"root@pam!antigravity"` | Proxmox VE API Token ID. |
+| `pve_token_secret` | password? | `""` | Proxmox VE API Token Secret. |
+| `npm_mcp_enabled` | bool | `false` | Enables Nginx Proxy Manager MCP server (`@warnyin/nginx-proxy-manager-mcp`). |
+| `npm_base_url` | url? | `"http://192.168.178.169:81/api"` | Nginx Proxy Manager API URL. |
+| `npm_email` | str? | `""` | NPM login email address. |
+| `npm_password` | password? | `""` | NPM login password. |
 | `auth_token` | password | `""` | Google OAuth Authorization Code or raw token. |
 | `log_level` | str | `"info"` | Logging verbosity (`trace`, `debug`, `info`, `warning`, `error`). |
 

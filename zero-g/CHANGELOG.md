@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0
+
+- 🚀 **Feature (Infrastruktur MCP-Server)**: Native Unterstützung für **Proxmox VE** (`@samik081/mcp-pve`) und **Nginx Proxy Manager** (`@warnyin/nginx-proxy-manager-mcp`) hinzugefügt.
+- 📦 **Dependencies**: Node.js 22 LTS und npm direkt im Container-Image integriert.
+- ⚙️ **Konfiguration & UI**: Neue Add-on-Optionen für Proxmox VE (`pve_mcp_enabled`, `pve_base_url`, `pve_token_id`, `pve_token_secret`) und Nginx Proxy Manager (`npm_mcp_enabled`, `npm_base_url`, `npm_email`, `npm_password`) inklusive deutscher & englischer Übersetzungen in der Benutzeroberfläche verfügbar.
+- 🔌 **Multi-MCP Auto-Config**: `ha-mcp-setup.sh` synchronisiert aktivierte MCPs automatisch in `mcp_config.json`, ohne sich gegenseitig zu überschreiben.
+
 ## 1.1.9
 
 - 🐛 **Fix**: GitHub Actions CI Workflow (`lint.yaml`): Nginx-Syntaxprüfung für nicht-privilegierte Runner-Umgebungen repariert (Fehler `open() "/run/nginx.pid" failed (13: Permission denied)` durch explizite Angabe von `pid /tmp/nginx_test.pid;` sowie `sudo nginx -t` behoben). Zusätzlich Validierung der Übersetzungsdateien (`translations/en.yaml` & `translations/de.yaml`) in CI integriert.
